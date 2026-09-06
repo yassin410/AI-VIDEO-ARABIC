@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>إتمام الاشتراك — AI Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Cairo',sans-serif; background:#0a0e1a; color:#fff; direction:rtl; min-height:100vh; }
+
+nav {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 20px; border-bottom:1px solid #1e2a3a;
+  background:rgba(10,14,26,0.97); position:sticky; top:0; z-index:60;
+}
+.logo { font-size:17px; font-weight:900; color:#f97316; text-decoration:none; }
+.back { color:#94a3b8; font-size:13px; text-decoration:none; }
+
+.container { max-width:900px; margin:0 auto; padding:28px 20px 70px; }
+.page-head { text-align:center; margin-bottom:24px; }
+.page-title { font-size:25px; font-weight:900; margin-bottom:6px; }
+.page-sub { color:#64748b; font-size:13px; line-height:1.8; }
+
+.layout { display:grid; grid-template-columns:1.15fr .85fr; gap:14px; }
+
+.card {
+  background:#111827; border:1px solid #1e2a3a;
+  border-radius:16px; padding:20px;
+}
+
+.price-box {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; background:#0a0e1a; border:1px solid #1e2a3a;
+  border-radius:12px; padding:14px 16px; margin-bottom:16px;
+}
+.price-label { color:#94a3b8; font-size:12px; }
+.price { color:#f97316; font-size:28px; font-weight:900; white-space:nowrap; }
+.price small { color:#94a3b8; font-size:12px; font-weight:600; }
+
+.method-title { color:#f97316; font-size:17px; font-weight:900; margin-bottom:14px; }
+
+.qr-wrap {
+  text-align:center; background:#fff; border-radius:14px;
+  padding:10px; max-width:330px; margin:0 auto 12px;
+}
+.qr-wrap img { width:100%; border-radius:8px; }
+
+.qr-caption {
+  text-align:center; color:#94a3b8; font-size:11px;
+  line-height:1.7; margin-bottom:16px;
+}
+
+.info-item {
+  background:#0a0e1a; border:1px solid #1e2a3a;
+  border-radius:11px; padding:13px 14px; margin-bottom:9px;
+}
+.info-label { color:#64748b; font-size:11px; margin-bottom:5px; }
+.info-value { font-size:15px; font-weight:700; word-break:break-all; }
+
+.copy-btn {
+  margin-top:8px; background:#111827; border:1px solid #334155;
+  color:#fff; padding:8px 13px; border-radius:8px;
+  font-family:'Cairo',sans-serif; font-size:12px; font-weight:700;
+  cursor:pointer;
+}
+
+.steps { display:flex; flex-direction:column; gap:10px; }
+.step {
+  display:flex; align-items:flex-start; gap:11px;
+  background:#0a0e1a; border:1px solid #1e2a3a;
+  border-radius:11px; padding:12px;
+}
+.step-num {
+  width:30px; height:30px; border-radius:8px;
+  background:rgba(249,115,22,.13); color:#f97316;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:900;
+}
+
+.notice {
+  background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.25);
+  color:#93c5fd; border-radius:11px; padding:12px 14px;
+  font-size:12px; line-height:1.8; margin-top:14px;
+}
+
+.receipt-card { margin-top:14px; }
+.receipt-title { font-size:17px; font-weight:900; margin-bottom:5px; }
+.receipt-sub { color:#64748b; font-size:12px; line-height:1.7; margin-bottom:14px; }
+
+/* زر واتساب داخل البطاقة: ضبط الحجم والـ z-index */
+.wa-send {
+  width:100%; display:flex; align-items:center; justify-content:center;
+  gap:9px; background:#25d366; color:#fff; text-decoration:none;
+  border:none; border-radius:11px; padding:12px 16px;
+  font-family:'Cairo',sans-serif; font-size:15px; font-weight:900;
+  cursor:pointer; z-index:200; position:relative;
+  box-shadow:0 6px 18px rgba(37,211,102,0.12);
+}
+.wa-send svg { width:20px; height:20px; flex-shrink:0; }
+
+/* زر واتساب العائم (لا يتداخل مع زر الإرسال) */
+.floating-wa {
+  position:fixed; left:18px; bottom:18px; width:58px; height:58px;
+  border-radius:50%; background:#25d366; color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  text-decoration:none; box-shadow:0 8px 25px rgba(0,0,0,.35);
+  z-index:100;
+}
+.floating-wa svg { width:30px; height:30px; }
+
+.support-card { margin-top:14px; text-align:center; }
+.support-btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  gap:8px; color:#fff; background:#111827;
+  border:1px solid #334155; text-decoration:none;
+  padding:10px 16px; border-radius:10px; font-size:13px; font-weight:700;
+}
+
+.copy-toast {
+  position:fixed; left:50%; bottom:25px;
+  transform:translateX(-50%) translateY(20px);
+  background:#111827; border:1px solid #334155;
+  color:#fff; padding:10px 16px; border-radius:10px;
+  font-size:12px; opacity:0; pointer-events:none;
+  transition:.25s; z-index:300;
+}
+.copy-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+.footer-note {
+  text-align:center; color:#374151;
+  font-size:11px; margin-top:20px;
+}
+
+@media (max-width:720px) {
+  .layout { grid-template-columns:1fr; }
+  .container { padding:22px 14px 80px; }
+  .page-title { font-size:22px; }
+  .card { padding:16px; }
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+  <a href="index.html" class="logo">🎬 AI Academy</a>
+  <a href="index.html" class="back">← الرئيسية</a>
+</nav>
+
+<div class="container">
+  <div class="page-head">
+    <div class="page-title">إتمام الاشتراك</div>
+    <div class="page-sub">حوّل قيمة الاشتراك، ثم أرسل صورة الإيصال عبر واتساب ليتم تفعيل حسابك.</div>
+  </div>
+
+  <div class="layout">
+
+    <!-- القسم الأيسر -->
+    <div>
+      <div class="card">
+        <div class="price-box">
+          <div class="price-label">قيمة الاشتراك الشهري</div>
+          <div class="price">5$ <small>≈ 660 ل.س جديدة</small></div>
+        </div>
+
+        <div class="method-title">الطريقة الأولى: شام كاش</div>
+
+        <div class="qr-wrap">
+          <img src="shamcash-qr.png" alt="QR شام كاش" id="qrImg">
+        </div>
+
+        <div class="qr-caption">
+          امسح رمز QR من تطبيق شام كاش، أو استخدم معرف المحفظة الموجود بالأسفل.
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">معرف حساب شام كاش (Wallet ID)</div>
+          <div class="info-value" id="walletId">9e9fa1ff4a4b0c1d40542bf535620d66</div>
+          <button class="copy-btn" onclick="copyText('walletId','تم نسخ معرف شام كاش ✓')">📋 نسخ المعرف</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="method-title">طريقة التحويل عبر شام كاش</div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div><h3>افتح تطبيق شام كاش</h3><p>ادخل إلى خيار التحويل من داخل التطبيق.</p></div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">2</div>
+            <div><h3>اختر مسح QR</h3><p>أو أدخل معرف المحفظة يدوياً.</p></div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">3</div>
+            <div><h3>حوّل مبلغ الاشتراك</h3><p>5$ أو ما يقابله بالليرة السورية الجديدة.</p></div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">4</div>
+            <div><h3>احتفظ بصورة الإيصال</h3><p>بعد نجاح التحويل، خذ Screenshot واضح للإيصال.</p></div>
+          </div>
+        </div>
+
+        <div class="notice">
+          ⚠️ تأكد من صحة معرف المحفظة والمبلغ قبل التحويل، واحتفظ بصورة الإيصال حتى يتم تفعيل حسابك.
+        </div>
+      </div>
+    </div>
+
+    <!-- القسم الأيمن -->
+    <div>
+      <div class="card receipt-card">
+        <div class="receipt-title">بعد التحويل</div>
+        <div class="receipt-sub">
+          أرسل صورة إيصال الدفع عبر واتساب، وسيتم مراجعة الدفع وتفعيل حسابك بعد التأكد من الإيصال.
+        </div>
+
+        <button type="button" class="wa-send" id="waSendBtn">
+          <svg viewBox="0 0 24 24" fill="white" aria-hidden="true">
+            <path d="M20.52 3.48A11.77 11.77 0 0 0 12.04 0C5.55 0 .27 5.28.27 11.77c0 2.07.54 4.1 1.57 5.88L.17 24l6.49-1.64a11.76 11.76 0 0 0 5.38 1.3h.01c6.49 0 11.77-5.28 11.77-11.77 0-3.14-1.22-6.09-3.3-8.41Z"/>
+          </svg>
+          إرسال إيصال الدفع عبر واتساب
+        </button>
+
+        <div class="notice">
+          📎 بعد فتح واتساب، أرفق صورة الإيصال داخل المحادثة ثم اضغط إرسال.
+        </div>
+      </div>
+
+      <div class="card support-card">
+        <div class="receipt-title">تحتاج مساعدة؟</div>
+        <div class="receipt-sub">إذا واجهت أي مشكلة بالدفع أو التسجيل، تواصل معنا مباشرة.</div>
+
+        <a class="support-btn" href="https://wa.me/963951761240" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M20.52 3.48A11.77 11.77 0 0 0 12.04 0C5.55 0 .27 5.28.27 11.77c0 2.07.54 4.1 1.57 5.88L.17 24l6.49-1.64a11.76 11.76 0 0 0 5.38 1.3h.01c6.49 0 11.77-5.28 11.77-11.77 0-3.14-1.22-6.09-3.3-8.41Z"/>
+          </svg>
+          تواصل معنا عبر واتساب
+        </a>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="method-title">معلومات الاشتراك</div>
+        <div style="font-size:12px;color:#94a3b8;line-height:2;">
+          • قيمة الاشتراك: <strong style="color:#fff;">5$ شهرياً</strong><br>
+          • ما يقابله تقريباً: <strong style="color:#fff;">660 ليرة سورية جديدة</strong><br>
+          • مدة الاشتراك: <strong style="color:#fff;">30 يوماً</strong> من تاريخ التفعيل<br>
+          • التفعيل: <strong style="color:#fff;">بعد مراجعة إيصال الدفع</strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-note">© 2026 AI Academy — جميع الحقوق محفوظة</div>
+</div>
+
+<a class="floating-wa" href="https://wa.me/963951761240" target="_blank" rel="noopener" aria-label="تواصل معنا عبر واتساب">
+  <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M20.52 3.48A11.77 11.77 0 0 0 12.04 0C5.55 0 .27 5.28.27 11.77c0 2.07.54 4.1 1.57 5.88L.17 24l6.49-1.64a11.76 11.76 0 0 0 5.38 1.3h.01c6.49 0 11.77-5.28 11.77-11.77 0-3.14-1.22-6.09-3.3-8.41Z"/></svg>
+</a>
+
+<div class="copy-toast" id="copyToast" role="status" aria-live="polite"></div>
+
+<!-- سكربت كامل وآمن -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* إعداد Supabase */
+const SUPABASE_URL = 'https://xcbhyjgvwhnaygnpnegt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjYmh5amd2d2huYXlnbnBuZWd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0MDkxODAsImV4cCI6MjEwMzk4NTE4MH0.fPh9QGniWAyg_Jg5uO0zpDoA03nvNbHHNXH9qocbmpM';
+
+const WHATSAPP_NUMBER = '963951761240';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* بيانات المستخدم الحالية */
+let currentName = '';
+let currentEmail = '';
+let currentPhone = '';
+
+/* جلب بيانات المستخدم من Supabase */
+async function loadUserData() {
+  try {
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) return;
+
+    // نحاول قراءة الحقول من جدول users
+    const { data, error } = await sb
+      .from('users')
+      .select('full_name, email, whatsapp_number')
+      .eq('id', user.id)
+      .single();
+
+    if (!error && data) {
+      currentName  = data.full_name || user.user_metadata?.full_name || '';
+      currentEmail = data.email || user.email || '';
+      currentPhone = data.whatsapp_number || '';
+    } else {
+      // fallback إلى بيانات auth فقط
+      currentName  = user.user_metadata?.full_name || '';
+      currentEmail = user.email || '';
+      currentPhone = '';
+    }
+  } catch (err) {
+    console.error('loadUserData error', err);
+  }
+}
+
+/* فتح واتساب برسالة جاهزة */
+function openWhatsAppMessage(message) {
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  // نفتح في تبويب جديد حتى لا نكسر صفحة الدفع
+  window.open(url, '_blank');
+}
+
+/* دالة إرسال الإيصال (تُستدعى عند الضغط على الزر) */
+async function sendReceipt() {
+  // تأكد من وجود بيانات المستخدم، وإلا جلبها
+  if (!currentName && !currentEmail && !currentPhone) {
+    await loadUserData();
+  }
+
+  const name  = currentName  || 'غير متوفر';
+  const email = currentEmail || 'غير متوفر';
+  const phone = currentPhone || 'غير متوفر';
+
+  const message =
+`مرحباً، دفعت اشتراك AI Academy
+الاسم: ${name}
+الإيميل: ${email}
+رقم الواتساب: ${phone}
+قيمة الاشتراك: 5$
+أرفقت صورة إيصال الدفع، أرجو مراجعة الإيصال وتفعيل الحساب. شكراً لكم.`;
+
+  openWhatsAppMessage(message);
+}
+
+/* نسخ نص إلى الحافظة مع رسالة مؤقتة */
+async function copyText(id, successText) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const text = el.textContent.trim();
+
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (err) {
+    // fallback للمتصفحات القديمة
+    const temp = document.createElement('textarea');
+    temp.value = text;
+    temp.style.position = 'fixed';
+    temp.style.opacity = '0';
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand('copy');
+    temp.remove();
+  }
+
+  const toast = document.getElementById('copyToast');
+  toast.textContent = successText;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1800);
+}
+
+/* تهيئة الأحداث بعد تحميل DOM */
+document.addEventListener('DOMContentLoaded', function() {
+  // جلب بيانات المستخدم مبكراً
+  loadUserData();
+
+  // ربط زر واتساب
+  const waBtn = document.getElementById('waSendBtn');
+  if (waBtn) {
+    waBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      sendReceipt();
+    });
+  }
+
+  // تحسين الوصول: السماح بالضغط عبر Enter عندما يكون الزر مركّز
+  if (waBtn) {
+    waBtn.addEventListener('keyup', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        sendReceipt();
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>
