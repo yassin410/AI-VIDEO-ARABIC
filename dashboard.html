@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة الطالب — AI Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Cairo',sans-serif; background:#0a0e1a; color:#fff; direction:rtl; min-height:100vh; }
+nav { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid #1e2a3a; position:sticky; top:0; background:#0a0e1a; z-index:10; }
+.logo { font-size:17px; font-weight:900; color:#f97316; }
+.logout-btn { background:transparent; border:1px solid #1e2a3a; color:#94a3b8; padding:7px 14px; border-radius:8px; font-family:'Cairo',sans-serif; font-size:13px; cursor:pointer; }
+.container { padding:24px 20px; max-width:600px; margin:0 auto; }
+
+/* حالة pending */
+.status-card { border-radius:16px; padding:24px 20px; text-align:center; margin-bottom:20px; }
+.status-pending { background:rgba(249,115,22,0.08); border:1px solid rgba(249,115,22,0.2); }
+.status-expired { background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); }
+.status-icon { font-size:40px; margin-bottom:12px; }
+.status-title { font-size:18px; font-weight:700; margin-bottom:8px; }
+.status-msg { font-size:13px; color:#94a3b8; line-height:1.7; margin-bottom:16px; }
+.wa-btn { display:inline-flex; align-items:center; gap:8px; background:#25d366; color:#fff; text-decoration:none; padding:12px 24px; border-radius:10px; font-weight:700; font-size:14px; }
+
+/* لوحة المستخدم النشط */
+.welcome-box { background:#111827; border:1px solid #1e2a3a; border-radius:16px; padding:20px; margin-bottom:20px; }
+.welcome-name { font-size:20px; font-weight:900; margin-bottom:4px; }
+.welcome-exp { font-size:13px; color:#64748b; }
+.exp-date { color:#f97316; font-weight:700; }
+
+.stages-title { font-size:16px; font-weight:700; margin-bottom:14px; color:#94a3b8; }
+
+/* كروت المراحل */
+.stage-card { background:#111827; border:1px solid #1e2a3a; border-radius:12px; padding:16px; margin-bottom:10px; display:flex; align-items:center; gap:14px; cursor:pointer; transition:border 0.2s; }
+.stage-card.unlocked:hover { border-color:#f97316; }
+.stage-card.locked { opacity:0.5; cursor:not-allowed; }
+.stage-num { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:16px; flex-shrink:0; }
+.unlocked .stage-num { background:rgba(249,115,22,0.15); color:#f97316; }
+.locked .stage-num { background:#1e2a3a; color:#374151; }
+.stage-info { flex:1; }
+.stage-info h3 { font-size:14px; font-weight:700; margin-bottom:3px; }
+.stage-info p { font-size:11px; color:#64748b; }
+.stage-badge { font-size:18px; }
+
+/* مودال الدرس */
+.modal { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); z-index:100; padding:20px; align-items:center; justify-content:center; }
+.modal.open { display:flex; }
+.modal-box { background:#111827; border:1px solid #1e2a3a; border-radius:16px; width:100%; max-width:500px; overflow:hidden; }
+.modal-header { padding:16px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e2a3a; }
+.modal-title { font-size:16px; font-weight:700; }
+.close-btn { background:transparent; border:none; color:#94a3b8; font-size:22px; cursor:pointer; }
+.video-wrap { position:relative; padding-bottom:56.25%; background:#000; }
+.video-wrap iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; }
+.modal-desc { padding:16px 20px; font-size:13px; color:#94a3b8; line-height:1.7; }
+
+/* loading */
+.loading { text-align:center; padding:40px; color:#64748b; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">🎬 AI Academy</div>
+  <button class="logout-btn" onclick="doLogout()">خروج</button>
+</nav>
+
+<div class="container">
+  <div id="content" class="loading">⏳ جاري التحميل...</div>
+</div>
+
+<!-- مودال الفيديو -->
+<div class="modal" id="videoModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle"></span>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="video-wrap">
+      <iframe id="videoFrame" allowfullscreen></iframe>
+    </div>
+    <div class="modal-desc" id="modalDesc"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://xcbhyjgvwhnaygnpnegt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjYmh5amd2d2huYXlnbnBuZWd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0MDkxODAsImV4cCI6MjEwMzk4NTE4MH0.fPh9QGniWAyg_Jg5uO0zpDoA03nvNbHHNXH9qocbmpM';
+const WHATSAPP = '963951761240'; // ← غيّر لرقمك
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const STAGES = [
+  { num:1, title:'مقدمة وأساسيات الذكاء الاصطناعي', desc:'فهم الأدوات والمصطلحات الأساسية' },
+  { num:2, title:'توليد الصور بالذكاء الاصطناعي', desc:'إنشاء صور احترافية من النص' },
+  { num:3, title:'توليد الفيديوهات', desc:'تحويل الصور والأفكار لفيديوهات مذهلة' },
+  { num:4, title:'الصوت والمونتاج', desc:'إضافة الصوت والمؤثرات وتحرير الفيديو' },
+  { num:5, title:'ثبات الشخصية', desc:'شخصية AI متسقة في كل الفيديوهات' },
+  { num:6, title:'صناعة الإعلانات', desc:'إعلانات تجارية احترافية بدون تصوير' },
+  { num:7, title:'محتوى السوشيال ميديا', desc:'ريلز وتيك توك وفيسبوك بالذكاء الاصطناعي' },
+  { num:8, title:'صناعة الأفلام القصيرة', desc:'قصص وأفلام كاملة من الهاتف' },
+  { num:9, title:'الأتمتة وتوليد المحتوى التلقائي', desc:'نظام ينتج المحتوى لوحده' },
+];
+
+async function init() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { window.location.href = 'login.html'; return; }
+
+  const { data: userData } = await sb.from('users').select('full_name, role').eq('id', user.id).single();
+  if (userData?.role === 'admin') { window.location.href = 'admin.html'; return; }
+
+  const { data: membership } = await sb.from('memberships').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).single();
+
+  const content = document.getElementById('content');
+  const name = userData?.full_name || 'عضو';
+
+  if (!membership || membership.status === 'pending') {
+    content.innerHTML = `
+      <div class="status-card status-pending">
+        <div class="status-icon">⏳</div>
+        <div class="status-title">حسابك قيد المراجعة</div>
+        <div class="status-msg">مرحباً ${name}!<br>سيتم تفعيل حسابك خلال ساعات بعد تأكيد الدفع.<br>إذا أرسلت الإيصال، انتظر قليلاً أو تواصل معنا.</div>
+        <a href="https://wa.me/${WHATSAPP}" class="wa-btn">📱 تواصل معنا</a>
+      </div>`;
+    return;
+  }
+
+  if (membership.status === 'expired' || (membership.end_date && new Date(membership.end_date) < new Date())) {
+    content.innerHTML = `
+      <div class="status-card status-expired">
+        <div class="status-icon">🔴</div>
+        <div class="status-title">انتهى اشتراكك</div>
+        <div class="status-msg">مرحباً ${name}!<br>انتهت مدة اشتراكك. جدد الاشتراك بـ5$ لمتابعة التعلم.</div>
+        <a href="https://wa.me/${WHATSAPP}?text=بدي أجدد اشتراكي في AI Academy" class="wa-btn">💳 جدد الاشتراك</a>
+      </div>`;
+    return;
+  }
+
+  // عضو نشط
+  const startDate = new Date(membership.start_date || membership.created_at);
+  const endDate = new Date(membership.end_date);
+  const daysSinceStart = Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24));
+  const endFormatted = endDate.toLocaleDateString('ar-SY');
+
+  // جلب الدروس من قاعدة البيانات
+  const { data: lessons } = await sb.from('lessons').select('*, courses(title)').order('display_order');
+
+  let stagesHTML = STAGES.map(stage => {
+    // البحث عن درس لهذه المرحلة
+    const lesson = lessons?.find(l => l.display_order === stage.num);
+    const unlockDays = lesson ? lesson.unlock_after_days : (stage.num - 1) * 7;
+    const isUnlocked = daysSinceStart >= unlockDays;
+    const daysLeft = unlockDays - daysSinceStart;
+
+    if (isUnlocked) {
+      return `<div class="stage-card unlocked" onclick="openLesson(${stage.num}, '${stage.title}', '${lesson?.video_url || ''}', '${stage.desc}')">
+        <div class="stage-num">${stage.num}</div>
+        <div class="stage-info"><h3>${stage.title}</h3><p>${stage.desc}</p></div>
+        <div class="stage-badge">▶️</div>
+      </div>`;
+    } else {
+      return `<div class="stage-card locked">
+        <div class="stage-num">🔒</div>
+        <div class="stage-info"><h3>${stage.title}</h3><p>تنفتح خلال ${daysLeft} يوم</p></div>
+        <div class="stage-badge">🔒</div>
+      </div>`;
+    }
+  }).join('');
+
+  content.innerHTML = `
+    <div class="welcome-box">
+      <div class="welcome-name">أهلاً بك ${name} 👋</div>
+      <div class="welcome-exp">اشتراكك فعال حتى: <span class="exp-date">${endFormatted}</span></div>
+    </div>
+    <div class="stages-title">📚 مراحلك التعليمية</div>
+    ${stagesHTML}`;
+}
+
+function openLesson(num, title, videoUrl, desc) {
+  if (!videoUrl) {
+    alert('الفيديو سيتوفر قريباً، تابعنا!');
+    return;
+  }
+  document.getElementById('modalTitle').textContent = `المرحلة ${num}: ${title}`;
+  document.getElementById('videoFrame').src = videoUrl;
+  document.getElementById('modalDesc').textContent = desc;
+  document.getElementById('videoModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('videoModal').classList.remove('open');
+  document.getElementById('videoFrame').src = '';
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  window.location.href = 'index.html';
+}
+
+init();
+</script>
+</body>
+</html>

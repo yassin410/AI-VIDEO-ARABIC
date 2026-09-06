@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة الإدارة — AI Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Cairo',sans-serif; background:#0a0e1a; color:#fff; direction:rtl; min-height:100vh; }
+nav { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid #1e2a3a; background:#0a0e1a; position:sticky; top:0; z-index:10; }
+.logo { font-size:17px; font-weight:900; color:#f97316; }
+.logout-btn { background:transparent; border:1px solid #1e2a3a; color:#94a3b8; padding:7px 14px; border-radius:8px; font-family:'Cairo',sans-serif; font-size:13px; cursor:pointer; }
+
+.tabs { display:flex; gap:4px; padding:16px 20px 0; border-bottom:1px solid #1e2a3a; }
+.tab { padding:10px 16px; font-size:13px; font-weight:700; cursor:pointer; border-radius:10px 10px 0 0; color:#64748b; background:transparent; border:none; font-family:'Cairo',sans-serif; }
+.tab.active { background:#111827; color:#f97316; border:1px solid #1e2a3a; border-bottom:1px solid #111827; }
+
+.container { padding:20px; max-width:700px; margin:0 auto; }
+.section { display:none; }
+.section.active { display:block; }
+
+.sec-title { font-size:18px; font-weight:900; margin-bottom:16px; }
+
+/* كروت الأعضاء */
+.member-card { background:#111827; border:1px solid #1e2a3a; border-radius:12px; padding:16px; margin-bottom:10px; }
+.member-name { font-size:15px; font-weight:700; margin-bottom:4px; }
+.member-info { font-size:12px; color:#64748b; margin-bottom:12px; line-height:1.7; }
+.member-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.btn { padding:8px 14px; border-radius:8px; font-family:'Cairo',sans-serif; font-size:12px; font-weight:700; cursor:pointer; border:none; }
+.btn-green { background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); }
+.btn-red { background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3); }
+.btn-orange { background:rgba(249,115,22,0.15); color:#fb923c; border:1px solid rgba(249,115,22,0.3); }
+.btn-blue { background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); }
+
+.badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+.badge-pending { background:rgba(249,115,22,0.15); color:#fb923c; }
+.badge-active { background:rgba(34,197,94,0.15); color:#4ade80; }
+.badge-expired { background:rgba(239,68,68,0.15); color:#f87171; }
+
+/* إضافة درس */
+.form-group { margin-bottom:14px; }
+label { display:block; font-size:13px; color:#94a3b8; margin-bottom:6px; font-weight:600; }
+input, textarea, select { width:100%; background:#111827; border:1px solid #1e2a3a; border-radius:10px; padding:11px 14px; color:#fff; font-family:'Cairo',sans-serif; font-size:14px; outline:none; }
+input:focus, textarea:focus, select:focus { border-color:#f97316; }
+textarea { height:80px; resize:vertical; }
+.btn-submit { width:100%; background:#f97316; color:#fff; border:none; border-radius:10px; padding:13px; font-size:15px; font-weight:700; font-family:'Cairo',sans-serif; cursor:pointer; margin-top:6px; }
+
+.loading { text-align:center; padding:40px; color:#64748b; }
+.empty { text-align:center; padding:30px; color:#374151; font-size:14px; }
+
+.stats-row { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+.stat-box { background:#111827; border:1px solid #1e2a3a; border-radius:12px; padding:14px 18px; flex:1; min-width:100px; text-align:center; }
+.stat-n { font-size:26px; font-weight:900; color:#f97316; }
+.stat-l { font-size:11px; color:#64748b; }
+
+.lesson-card { background:#111827; border:1px solid #1e2a3a; border-radius:12px; padding:14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+.lesson-info h3 { font-size:14px; font-weight:700; margin-bottom:2px; }
+.lesson-info p { font-size:11px; color:#64748b; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">🎬 إدارة AI Academy</div>
+  <button class="logout-btn" onclick="doLogout()">خروج</button>
+</nav>
+
+<!-- تابز -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('members')">👥 الأعضاء</button>
+  <button class="tab" onclick="switchTab('payments')">💳 الدفعات</button>
+  <button class="tab" onclick="switchTab('lessons')">📚 الدروس</button>
+</div>
+
+<div class="container">
+
+  <!-- قسم الأعضاء -->
+  <div class="section active" id="tab-members">
+    <div id="stats-row" class="stats-row"></div>
+    <div class="sec-title">الأعضاء</div>
+    <div id="members-list" class="loading">⏳ جاري التحميل...</div>
+  </div>
+
+  <!-- قسم الدفعات المعلقة -->
+  <div class="section" id="tab-payments">
+    <div class="sec-title">دفعات بانتظار الموافقة</div>
+    <div id="payments-list" class="loading">⏳ جاري التحميل...</div>
+  </div>
+
+  <!-- قسم الدروس -->
+  <div class="section" id="tab-lessons">
+    <div class="sec-title">إضافة درس جديد</div>
+    <div class="form-group">
+      <label>عنوان الدرس</label>
+      <input type="text" id="l-title" placeholder="مثال: كيف تصنع شخصية AI" />
+    </div>
+    <div class="form-group">
+      <label>المرحلة (1-9)</label>
+      <select id="l-order">
+        <option value="1">1 - مقدمة وأساسيات</option>
+        <option value="2">2 - توليد الصور</option>
+        <option value="3">3 - توليد الفيديوهات</option>
+        <option value="4">4 - الصوت والمونتاج</option>
+        <option value="5">5 - ثبات الشخصية</option>
+        <option value="6">6 - صناعة الإعلانات</option>
+        <option value="7">7 - محتوى السوشيال ميديا</option>
+        <option value="8">8 - الأفلام القصيرة</option>
+        <option value="9">9 - الأتمتة</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>رابط الفيديو (من Bunny.net)</label>
+      <input type="text" id="l-video" placeholder="https://iframe.mediadelivery.net/embed/..." />
+    </div>
+    <div class="form-group">
+      <label>ينفتح بعد كم يوم من الاشتراك؟</label>
+      <input type="number" id="l-days" value="0" min="0" />
+    </div>
+    <div class="form-group">
+      <label>وصف الدرس</label>
+      <textarea id="l-desc" placeholder="شرح مختصر عن محتوى الدرس..."></textarea>
+    </div>
+    <button class="btn-submit" onclick="addLesson()">➕ إضافة الدرس</button>
+
+    <div style="margin-top:24px;">
+      <div class="sec-title">الدروس الموجودة</div>
+      <div id="lessons-list" class="loading">⏳ جاري التحميل...</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://xcbhyjgvwhnaygnpnegt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjYmh5amd2d2huYXlnbnBuZWd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0MDkxODAsImV4cCI6MjEwMzk4NTE4MH0.fPh9QGniWAyg_Jg5uO0zpDoA03nvNbHHNXH9qocbmpM';
+const ADMIN_EMAIL = 'mohammdalhawash@gmail.com'; // ← غيّر لإيميلك
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// التحقق من الأدمن
+async function checkAdmin() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { window.location.href = 'login.html'; return false; }
+  const { data } = await sb.from('users').select('role').eq('id', user.id).single();
+  if (!data || data.role !== 'admin') { window.location.href = 'dashboard.html'; return false; }
+  return true;
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'members') loadMembers();
+  if (tab === 'payments') loadPayments();
+  if (tab === 'lessons') loadLessons();
+}
+
+// تحميل الأعضاء
+async function loadMembers() {
+  const { data: members } = await sb.from('users').select('*, memberships(status, start_date, end_date)').eq('role', 'member').order('created_at', { ascending: false });
+  if (!members) return;
+
+  const total = members.length;
+  const active = members.filter(m => m.memberships?.[0]?.status === 'active').length;
+  const pending = members.filter(m => m.memberships?.[0]?.status === 'pending').length;
+
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-box"><div class="stat-n">${total}</div><div class="stat-l">إجمالي</div></div>
+    <div class="stat-box"><div class="stat-n" style="color:#4ade80">${active}</div><div class="stat-l">نشطين</div></div>
+    <div class="stat-box"><div class="stat-n">${pending}</div><div class="stat-l">معلقين</div></div>
+  `;
+
+  if (members.length === 0) {
+    document.getElementById('members-list').innerHTML = '<div class="empty">لا يوجد أعضاء بعد</div>';
+    return;
+  }
+
+  document.getElementById('members-list').innerHTML = members.map(m => {
+    const ms = m.memberships?.[0];
+    const status = ms?.status || 'pending';
+    const endDate = ms?.end_date ? new Date(ms.end_date).toLocaleDateString('ar-SY') : '—';
+    const badgeClass = status === 'active' ? 'badge-active' : status === 'expired' ? 'badge-expired' : 'badge-pending';
+    const statusAr = status === 'active' ? 'نشط' : status === 'expired' ? 'منتهي' : 'معلق';
+    return `
+      <div class="member-card">
+        <div class="member-name">${m.full_name} <span class="badge ${badgeClass}">${statusAr}</span></div>
+        <div class="member-info">
+          📱 ${m.whatsapp_number}<br>
+          📧 ${m.email}<br>
+          📅 ينتهي: ${endDate}
+        </div>
+        <div class="member-actions">
+          <button class="btn btn-green" onclick="activateMember('${m.id}')">✓ تفعيل +30 يوم</button>
+          <button class="btn btn-red" onclick="expireMember('${m.id}')">✗ إيقاف</button>
+          <button class="btn btn-blue" onclick="window.open('https://wa.me/${m.whatsapp_number}')">واتساب</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// تفعيل عضو
+async function activateMember(userId) {
+  const start = new Date();
+  const end = new Date();
+  end.setDate(end.getDate() + 30);
+  const { error } = await sb.from('memberships').update({
+    status: 'active',
+    start_date: start.toISOString().split('T')[0],
+    end_date: end.toISOString().split('T')[0]
+  }).eq('user_id', userId);
+  if (!error) { alert('✅ تم تفعيل العضوية لـ30 يوم'); loadMembers(); }
+  else alert('خطأ: ' + error.message);
+}
+
+// إيقاف عضو
+async function expireMember(userId) {
+  if (!confirm('إيقاف هذا العضو؟')) return;
+  await sb.from('memberships').update({ status: 'expired' }).eq('user_id', userId);
+  alert('تم الإيقاف'); loadMembers();
+}
+
+// تحميل الدفعات
+async function loadPayments() {
+  const { data: payments } = await sb.from('payments').select('*, users(full_name, whatsapp_number)').eq('status', 'pending').order('created_at', { ascending: false });
+  if (!payments || payments.length === 0) {
+    document.getElementById('payments-list').innerHTML = '<div class="empty">✅ لا توجد دفعات معلقة</div>';
+    return;
+  }
+  document.getElementById('payments-list').innerHTML = payments.map(p => `
+    <div class="member-card">
+      <div class="member-name">${p.users?.full_name}</div>
+      <div class="member-info">📱 ${p.users?.whatsapp_number}<br>💰 ${p.amount}$ — ${p.payment_method}</div>
+      <div class="member-actions">
+        <button class="btn btn-green" onclick="approvePayment('${p.id}', '${p.user_id}')">✓ موافقة وتفعيل</button>
+        <button class="btn btn-red" onclick="rejectPayment('${p.id}')">✗ رفض</button>
+      </div>
+    </div>`).join('');
+}
+
+async function approvePayment(paymentId, userId) {
+  await sb.from('payments').update({ status: 'approved' }).eq('id', paymentId);
+  await activateMember(userId);
+  loadPayments();
+}
+
+async function rejectPayment(paymentId) {
+  if (!confirm('رفض هذه الدفعة؟')) return;
+  await sb.from('payments').update({ status: 'rejected' }).eq('id', paymentId);
+  loadPayments();
+}
+
+// تحميل الدروس
+async function loadLessons() {
+  const { data: lessons } = await sb.from('lessons').select('*').order('display_order');
+  if (!lessons || lessons.length === 0) {
+    document.getElementById('lessons-list').innerHTML = '<div class="empty">لا توجد دروس بعد، أضف أول درس من الفورم فوق</div>';
+    return;
+  }
+  document.getElementById('lessons-list').innerHTML = lessons.map(l => `
+    <div class="lesson-card">
+      <div class="lesson-info">
+        <h3>المرحلة ${l.display_order}: ${l.title}</h3>
+        <p>ينفتح بعد ${l.unlock_after_days} يوم</p>
+      </div>
+      <button class="btn btn-red" onclick="deleteLesson('${l.id}')">حذف</button>
+    </div>`).join('');
+}
+
+async function addLesson() {
+  const title = document.getElementById('l-title').value.trim();
+  const order = parseInt(document.getElementById('l-order').value);
+  const video = document.getElementById('l-video').value.trim();
+  const days = parseInt(document.getElementById('l-days').value) || 0;
+  const desc = document.getElementById('l-desc').value.trim();
+  if (!title) { alert('أدخل عنوان الدرس'); return; }
+  const { error } = await sb.from('lessons').insert({ title, display_order: order, video_url: video, unlock_after_days: days, description: desc });
+  if (!error) {
+    alert('✅ تمت إضافة الدرس');
+    document.getElementById('l-title').value = '';
+    document.getElementById('l-video').value = '';
+    document.getElementById('l-desc').value = '';
+    loadLessons();
+  } else alert('خطأ: ' + error.message);
+}
+
+async function deleteLesson(id) {
+  if (!confirm('حذف هذا الدرس؟')) return;
+  await sb.from('lessons').delete().eq('id', id);
+  loadLessons();
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  window.location.href = 'index.html';
+}
+
+// تشغيل
+checkAdmin().then(ok => { if (ok) loadMembers(); });
+</script>
+</body>
+</html>

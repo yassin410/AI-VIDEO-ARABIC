@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إنشاء حساب — AI Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Cairo',sans-serif;
+  background:#0a0e1a; color:#fff;
+  direction:rtl; min-height:100vh;
+  display:flex; flex-direction:column;
+}
+nav {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 20px; border-bottom:1px solid #1e2a3a;
+}
+.logo { font-size:17px; font-weight:900; color:#f97316; text-decoration:none; }
+nav a.back { color:#94a3b8; font-size:13px; text-decoration:none; }
+
+.container {
+  flex:1; display:flex; align-items:center;
+  justify-content:center; padding:30px 20px;
+}
+.card {
+  background:#111827; border:1px solid #1e2a3a;
+  border-radius:20px; padding:28px 22px;
+  width:100%; max-width:420px;
+}
+.card-title {
+  font-size:22px; font-weight:900;
+  text-align:center; margin-bottom:4px;
+}
+.card-sub {
+  text-align:center; color:#64748b;
+  font-size:13px; margin-bottom:24px;
+}
+
+label {
+  display:block; font-size:13px;
+  color:#94a3b8; margin-bottom:6px; font-weight:600;
+}
+.input-wrap {
+  position:relative;
+}
+input {
+  width:100%; background:#0a0e1a;
+  border:1px solid #1e2a3a; border-radius:10px;
+  padding:12px 14px; color:#fff;
+  font-family:'Cairo',sans-serif; font-size:14px;
+  margin-bottom:16px; outline:none;
+  transition:border 0.2s;
+}
+input:focus { border-color:#f97316; }
+input::placeholder { color:#374151; }
+
+.eye-btn {
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  background:none;
+  border:none;
+  cursor:pointer;
+  color:#94a3b8;
+}
+
+.btn-submit {
+  width:100%; background:#f97316; color:#fff;
+  border:none; border-radius:10px;
+  padding:14px; font-size:16px;
+  font-weight:700; font-family:'Cairo',sans-serif;
+  cursor:pointer; transition:opacity 0.2s;
+  margin-top:4px;
+}
+.btn-submit:disabled { opacity:0.6; cursor:not-allowed; }
+
+.msg {
+  text-align:center; padding:12px;
+  border-radius:10px; font-size:13px;
+  margin-top:14px; display:none;
+}
+.msg.error { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#f87171; }
+.msg.success { background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); color:#4ade80; }
+
+.login-link {
+  text-align:center; margin-top:18px;
+  font-size:13px; color:#64748b;
+}
+.login-link a { color:#f97316; text-decoration:none; font-weight:700; }
+
+/* زر واتساب العائم */
+.floating-wa {
+  position:fixed;
+  left:18px;
+  bottom:18px;
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  background:#25d366;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  box-shadow:0 8px 25px rgba(0,0,0,.35);
+  z-index:100;
+}
+.floating-wa svg {
+  width:30px;
+  height:30px;
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+  <a href="index.html" class="logo">🎬 AI Academy</a>
+  <a href="index.html" class="back">← الرئيسية</a>
+</nav>
+
+<div class="container">
+  <div class="card">
+    <div class="card-title">إنشاء حساب جديد</div>
+    <div class="card-sub">انضم للأكاديمية وابدأ رحلتك مع AI</div>
+
+    <label>الاسم الكامل</label>
+    <input type="text" id="name" placeholder="محمد أحمد" />
+
+    <label>رقم الواتساب</label>
+    <input type="tel" id="phone" placeholder="09XXXXXXXX" />
+
+    <label>البريد الإلكتروني</label>
+    <input type="email" id="email" placeholder="example@email.com" />
+
+    <label>كلمة المرور</label>
+    <div class="input-wrap">
+      <input type="password" id="password" placeholder="8 أحرف على الأقل" />
+      <button class="eye-btn" onclick="togglePassword()">
+        👁️
+      </button>
+    </div>
+
+    <button class="btn-submit" id="registerBtn" onclick="doRegister()">
+      إنشاء الحساب
+    </button>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="login-link">
+      عندك حساب؟ <a href="login.html">سجل دخول</a>
+    </div>
+  </div>
+</div>
+
+<!-- زر واتساب العائم -->
+<a class="floating-wa" href="https://wa.me/963951761240" target="_blank">
+  <svg viewBox="0 0 24 24" fill="white">
+    <path d="M20.52 3.48A11.77 11.77 0 0 0 12.04 0C5.55 0 .27 5.28.27 11.77c0 2.07.54 4.1 1.57 5.88L.17 24l6.49-1.64a11.76 11.76 0 0 0 5.38 1.3h.01c6.49 0 11.77-5.28 11.77-11.77 0-3.14-1.22-6.09-3.3-8.41Z"/>
+  </svg>
+</a>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://xcbhyjgvwhnaygnpnegt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjYmh5amd2d2huYXlnbnBuZWd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0MDkxODAsImV4cCI6MjEwMzk4NTE4MH0.fPh9QGniWAyg_Jg5uO0zpDoA03nvNbHHNXH9qocbmpM';
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function showMsg(text, type) {
+  const el = document.getElementById('msg');
+  el.textContent = text;
+  el.className = 'msg ' + type;
+  el.style.display = 'block';
+}
+
+function togglePassword() {
+  const input = document.getElementById('password');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+async function doRegister() {
+  const name     = document.getElementById('name').value.trim();
+  const phone    = document.getElementById('phone').value.trim();
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn      = document.getElementById('registerBtn');
+
+  if (!name || !phone || !email || !password) {
+    showMsg('يرجى تعبئة جميع الحقول', 'error');
+    return;
+  }
+  if (password.length < 8) {
+    showMsg('كلمة المرور يجب أن تكون 8 أحرف على الأقل', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'جاري التسجيل...';
+
+  try {
+    const { data: authData, error: authError } = await sb.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: name } }
+    });
+
+    if (authError) throw authError;
+
+    const userId = authData.user.id;
+
+    await sb.from('users').insert({
+      id: userId,
+      full_name: name,
+      whatsapp_number: phone,
+      email: email,
+      role: 'member'
+    });
+
+    await sb.from('memberships').insert({
+      user_id: userId,
+      status: 'pending'
+    });
+
+    showMsg('تم إنشاء حسابك بنجاح ✓', 'success');
+    btn.textContent = 'تم التسجيل ✓';
+
+    setTimeout(() => {
+      window.location.href = 'payment.html';
+    }, 1200);
+
+  } catch (err) {
+    showMsg('حدث خطأ: ' + err.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'إنشاء الحساب';
+  }
+}
+
+document.addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') doRegister();
+});
+</script>
+
+</body>
+</html>
