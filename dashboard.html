@@ -58,6 +58,31 @@ nav { display:flex; justify-content:space-between; align-items:center; padding:1
 
 /* loading */
 .loading { text-align:center; padding:40px; color:#64748b; }
+
+/* صفحة الدروس */
+.stage-progress { margin-top:8px; height:5px; background:#1e2a3a; border-radius:99px; overflow:hidden; }
+.stage-progress-bar { height:100%; background:#f97316; border-radius:99px; transition:width .25s; }
+.lesson-count { font-size:11px; color:#64748b; margin-top:3px; }
+.lesson-list { display:flex; flex-direction:column; gap:10px; }
+.stage-page-head { background:#111827; border:1px solid #1e2a3a; border-radius:16px; padding:18px; margin-bottom:14px; }
+.back-btn { background:transparent; border:1px solid #1e2a3a; color:#cbd5e1; padding:9px 12px; border-radius:9px; font-family:'Cairo',sans-serif; cursor:pointer; margin-bottom:14px; }
+.stage-page-title { font-size:20px; font-weight:900; margin-bottom:4px; }
+.stage-page-desc { color:#64748b; font-size:12px; line-height:1.7; }
+.lesson-card { background:#111827; border:1px solid #1e2a3a; border-radius:14px; padding:15px; display:flex; align-items:center; gap:12px; }
+.lesson-card.open { cursor:pointer; }
+.lesson-card.open:hover { border-color:#f97316; }
+.lesson-card.locked { opacity:.55; cursor:not-allowed; }
+.lesson-number { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(249,115,22,.12); color:#f97316; font-weight:900; }
+.lesson-card.locked .lesson-number { background:#1e2a3a; color:#64748b; }
+.lesson-main { flex:1; min-width:0; }
+.lesson-main h3 { font-size:14px; margin-bottom:3px; }
+.lesson-main p { font-size:11px; color:#64748b; line-height:1.6; }
+.lesson-status { font-size:18px; }
+.complete-btn { width:100%; margin-top:14px; padding:12px; border:0; border-radius:10px; background:#f97316; color:#fff; font-family:'Cairo',sans-serif; font-weight:700; cursor:pointer; }
+.complete-btn:disabled { opacity:.55; cursor:not-allowed; }
+.next-note { text-align:center; color:#64748b; font-size:11px; margin-top:8px; }
+.empty-stage { background:#111827; border:1px dashed #263247; border-radius:14px; padding:30px 18px; text-align:center; color:#64748b; font-size:13px; }
+
 </style>
 </head>
 <body>
@@ -68,6 +93,17 @@ nav { display:flex; justify-content:space-between; align-items:center; padding:1
 
 <div class="container">
   <div id="content" class="loading">⏳ جاري التحميل...</div>
+</div>
+
+<!-- صفحة دروس المرحلة -->
+<div class="modal" id="stageModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">دروس المرحلة</span>
+      <button class="close-btn" onclick="closeStage()">✕</button>
+    </div>
+    <div id="stageContent" style="padding:16px 20px 20px;"></div>
+  </div>
 </div>
 
 <!-- مودال الفيديو -->
@@ -81,6 +117,10 @@ nav { display:flex; justify-content:space-between; align-items:center; padding:1
       <iframe id="videoFrame" allowfullscreen></iframe>
     </div>
     <div class="modal-desc" id="modalDesc"></div>
+    <div style="padding:0 20px 20px;">
+      <button class="complete-btn" id="completeBtn" onclick="completeCurrentLesson()">✅ أنهيت الدرس — افتح الدرس التالي</button>
+      <div class="next-note">اضغط الزر بعد مشاهدة الدرس بالكامل لفتح الدرس التالي.</div>
+    </div>
   </div>
 </div>
 
@@ -88,7 +128,7 @@ nav { display:flex; justify-content:space-between; align-items:center; padding:1
 <script>
 const SUPABASE_URL = 'https://xcbhyjgvwhnaygnpnegt.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjYmh5amd2d2huYXlnbnBuZWd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0MDkxODAsImV4cCI6MjEwMzk4NTE4MH0.fPh9QGniWAyg_Jg5uO0zpDoA03nvNbHHNXH9qocbmpM';
-const WHATSAPP = '963951761240'; // ← غيّر لرقمك
+const WHATSAPP = '963951761240';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -104,9 +144,106 @@ const STAGES = [
   { num:9, title:'الأتمتة وتوليد المحتوى التلقائي', desc:'نظام ينتج المحتوى لوحده' },
 ];
 
+let currentUser = null;
+let allLessons = [];
+let currentStage = null;
+let currentLesson = null;
+let progress = {};
+
+function escapeHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+}
+
+function progressKey(userId) {
+  return `ai_academy_progress_${userId}`;
+}
+
+function loadProgress() {
+  try {
+    progress = JSON.parse(localStorage.getItem(progressKey(currentUser.id)) || '{}') || {};
+  } catch(e) { progress = {}; }
+}
+
+function saveProgress() {
+  localStorage.setItem(progressKey(currentUser.id), JSON.stringify(progress));
+}
+
+function lessonId(lesson) {
+  return String(lesson.id);
+}
+
+function isCompleted(lesson) {
+  return !!progress[lessonId(lesson)];
+}
+
+function getStageLessons(stageNum) {
+  return allLessons
+    .filter(l => Number(l.display_order) === Number(stageNum))
+    .sort((a,b) => {
+      const ad = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const bd = b.created_at ? new Date(b.created_at).getTime() : 0;
+      if (ad !== bd) return ad - bd;
+      return String(a.id).localeCompare(String(b.id));
+    });
+}
+
+function stageUnlockDays(stageLessons, stageNum) {
+  const values = stageLessons.map(l => Number(l.unlock_after_days) || 0);
+  return values.length ? Math.min(...values) : (stageNum - 1) * 7;
+}
+
+function stageIsUnlocked(stageNum, daysSinceStart) {
+  const lessons = getStageLessons(stageNum);
+  return daysSinceStart >= stageUnlockDays(lessons, stageNum);
+}
+
+function renderStages(daysSinceStart) {
+  const content = document.getElementById('content');
+  const stagesHTML = STAGES.map(stage => {
+    const lessons = getStageLessons(stage.num);
+    const unlocked = stageIsUnlocked(stage.num, daysSinceStart);
+    const completed = lessons.filter(isCompleted).length;
+    const total = lessons.length;
+    const pct = total ? Math.round((completed / total) * 100) : 0;
+
+    if (unlocked) {
+      return `<div class="stage-card unlocked" onclick="openStage(${stage.num})">
+        <div class="stage-num">${stage.num}</div>
+        <div class="stage-info">
+          <h3>${escapeHTML(stage.title)}</h3>
+          <p>${escapeHTML(stage.desc)}</p>
+          <div class="lesson-count">${total ? `${completed} / ${total} درس مكتمل` : 'لم تتم إضافة دروس بعد'}</div>
+          ${total ? `<div class="stage-progress"><div class="stage-progress-bar" style="width:${pct}%"></div></div>` : ''}
+        </div>
+        <div class="stage-badge">📚</div>
+      </div>`;
+    }
+
+    const daysLeft = Math.max(0, stageUnlockDays(lessons, stage.num) - daysSinceStart);
+    return `<div class="stage-card locked">
+      <div class="stage-num">🔒</div>
+      <div class="stage-info">
+        <h3>${escapeHTML(stage.title)}</h3>
+        <p>تنفتح خلال ${daysLeft} يوم</p>
+      </div>
+      <div class="stage-badge">🔒</div>
+    </div>`;
+  }).join('');
+
+  content.innerHTML = `
+    <div class="welcome-box">
+      <div class="welcome-name">أهلاً بك ${escapeHTML(window.__academyName || 'عضو')} 👋</div>
+      <div class="welcome-exp">اشتراكك فعال حتى: <span class="exp-date">${escapeHTML(window.__academyEndDate || '')}</span></div>
+    </div>
+    <div class="stages-title">📚 مراحلك التعليمية</div>
+    ${stagesHTML}`;
+}
+
 async function init() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  loadProgress();
 
   const { data: userData } = await sb.from('users').select('full_name, role').eq('id', user.id).single();
   if (userData?.role === 'admin') { window.location.href = 'admin.html'; return; }
@@ -115,13 +252,14 @@ async function init() {
 
   const content = document.getElementById('content');
   const name = userData?.full_name || 'عضو';
+  window.__academyName = name;
 
   if (!membership || membership.status === 'pending') {
     content.innerHTML = `
       <div class="status-card status-pending">
         <div class="status-icon">⏳</div>
         <div class="status-title">حسابك قيد المراجعة</div>
-        <div class="status-msg">مرحباً ${name}!<br>سيتم تفعيل حسابك خلال ساعات بعد تأكيد الدفع.<br>إذا أرسلت الإيصال، انتظر قليلاً أو تواصل معنا.</div>
+        <div class="status-msg">مرحباً ${escapeHTML(name)}!<br>سيتم تفعيل حسابك خلال ساعات بعد تأكيد الدفع.<br>إذا أرسلت الإيصال، انتظر قليلاً أو تواصل معنا.</div>
         <a href="https://wa.me/${WHATSAPP}" class="wa-btn">📱 تواصل معنا</a>
       </div>`;
     return;
@@ -132,66 +270,108 @@ async function init() {
       <div class="status-card status-expired">
         <div class="status-icon">🔴</div>
         <div class="status-title">انتهى اشتراكك</div>
-        <div class="status-msg">مرحباً ${name}!<br>انتهت مدة اشتراكك. جدد الاشتراك بـ5$ لمتابعة التعلم.</div>
+        <div class="status-msg">مرحباً ${escapeHTML(name)}!<br>انتهت مدة اشتراكك. جدد الاشتراك بـ5$ لمتابعة التعلم.</div>
         <a href="https://wa.me/${WHATSAPP}?text=بدي أجدد اشتراكي في AI Academy" class="wa-btn">💳 جدد الاشتراك</a>
       </div>`;
     return;
   }
 
-  // عضو نشط
   const startDate = new Date(membership.start_date || membership.created_at);
   const endDate = new Date(membership.end_date);
-  const daysSinceStart = Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24));
-  const endFormatted = endDate.toLocaleDateString('ar-SY');
+  const daysSinceStart = Math.max(0, Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24)));
+  window.__academyEndDate = endDate.toLocaleDateString('ar-SY');
 
-  // جلب الدروس من قاعدة البيانات
-  const { data: lessons } = await sb.from('lessons').select('*, courses(title)').order('display_order');
-
-  let stagesHTML = STAGES.map(stage => {
-    // البحث عن درس لهذه المرحلة
-    const lesson = lessons?.find(l => l.display_order === stage.num);
-    const unlockDays = lesson ? lesson.unlock_after_days : (stage.num - 1) * 7;
-    const isUnlocked = daysSinceStart >= unlockDays;
-    const daysLeft = unlockDays - daysSinceStart;
-
-    if (isUnlocked) {
-      return `<div class="stage-card unlocked" onclick="openLesson(${stage.num}, '${stage.title}', '${lesson?.video_url || ''}', '${stage.desc}')">
-        <div class="stage-num">${stage.num}</div>
-        <div class="stage-info"><h3>${stage.title}</h3><p>${stage.desc}</p></div>
-        <div class="stage-badge">▶️</div>
-      </div>`;
-    } else {
-      return `<div class="stage-card locked">
-        <div class="stage-num">🔒</div>
-        <div class="stage-info"><h3>${stage.title}</h3><p>تنفتح خلال ${daysLeft} يوم</p></div>
-        <div class="stage-badge">🔒</div>
-      </div>`;
-    }
-  }).join('');
-
-  content.innerHTML = `
-    <div class="welcome-box">
-      <div class="welcome-name">أهلاً بك ${name} 👋</div>
-      <div class="welcome-exp">اشتراكك فعال حتى: <span class="exp-date">${endFormatted}</span></div>
-    </div>
-    <div class="stages-title">📚 مراحلك التعليمية</div>
-    ${stagesHTML}`;
-}
-
-function openLesson(num, title, videoUrl, desc) {
-  if (!videoUrl) {
-    alert('الفيديو سيتوفر قريباً، تابعنا!');
+  const { data: lessons, error } = await sb.from('lessons').select('*').order('display_order').order('created_at', { ascending:true });
+  if (error) {
+    content.innerHTML = '<div class="empty-stage">تعذر تحميل الدروس. حاول تحديث الصفحة.</div>';
     return;
   }
-  document.getElementById('modalTitle').textContent = `المرحلة ${num}: ${title}`;
-  document.getElementById('videoFrame').src = videoUrl;
-  document.getElementById('modalDesc').textContent = desc;
+  allLessons = lessons || [];
+  renderStages(daysSinceStart);
+}
+
+function openStage(stageNum) {
+  currentStage = STAGES.find(s => s.num === Number(stageNum));
+  const lessons = getStageLessons(stageNum);
+  const completedCount = lessons.filter(isCompleted).length;
+
+  if (!lessons.length) {
+    document.getElementById('stageContent').innerHTML = `
+      <div class="stage-page-head">
+        <button class="back-btn" onclick="closeStage()">← العودة إلى المراحل</button>
+        <div class="stage-page-title">المرحلة ${stageNum}</div>
+        <div class="stage-page-desc">${escapeHTML(currentStage?.title || '')}</div>
+      </div>
+      <div class="empty-stage">لم تتم إضافة دروس لهذه المرحلة بعد.<br>ستظهر هنا تلقائيًا عند إضافتها من لوحة الإدارة.</div>`;
+    document.getElementById('stageModal').classList.add('open');
+    return;
+  }
+
+  const lessonsHTML = lessons.map((lesson, i) => {
+    const completed = isCompleted(lesson);
+    const previousDone = i === 0 || isCompleted(lessons[i - 1]);
+    const unlocked = previousDone;
+    const status = completed ? '✅' : (unlocked ? '▶️' : '🔒');
+    const stateClass = unlocked ? 'open' : 'locked';
+    return `<div class="lesson-card ${stateClass}" ${unlocked ? `onclick="openLesson(${i})"` : ''}>
+      <div class="lesson-number">${String(i+1).padStart(2,'0')}</div>
+      <div class="lesson-main">
+        <h3>${escapeHTML(lesson.title || `الدرس ${i+1}`)}</h3>
+        <p>${escapeHTML(lesson.description || 'درس تعليمي ضمن هذه المرحلة')}</p>
+      </div>
+      <div class="lesson-status">${status}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('stageContent').innerHTML = `
+    <div class="stage-page-head">
+      <button class="back-btn" onclick="closeStage()">← العودة إلى المراحل</button>
+      <div class="stage-page-title">المرحلة ${stageNum}</div>
+      <div class="stage-page-desc">${escapeHTML(currentStage?.title || '')} · ${completedCount} / ${lessons.length} مكتمل</div>
+    </div>
+    <div class="lesson-list">${lessonsHTML}</div>`;
+  document.getElementById('stageModal').classList.add('open');
+}
+
+function closeStage() {
+  document.getElementById('stageModal').classList.remove('open');
+}
+
+function openLesson(index) {
+  const lessons = getStageLessons(currentStage.num);
+  const lesson = lessons[index];
+  if (!lesson) return;
+  const previousDone = index === 0 || isCompleted(lessons[index - 1]);
+  if (!previousDone) {
+    alert('🔒 أكمل الدرس السابق أولاً.');
+    return;
+  }
+  if (!lesson.video_url) {
+    alert('الفيديو سيتوفر قريبًا، تابعنا!');
+    return;
+  }
+
+  currentLesson = { lesson, index, stageNum: currentStage.num };
+  document.getElementById('modalTitle').textContent = lesson.title || `الدرس ${index+1}`;
+  document.getElementById('videoFrame').src = lesson.video_url;
+  document.getElementById('modalDesc').textContent = lesson.description || '';
+  const btn = document.getElementById('completeBtn');
+  btn.textContent = isCompleted(lesson) ? '✅ تم إنهاء الدرس — يمكنك متابعة الدرس التالي' : '✅ أنهيت الدرس — افتح الدرس التالي';
   document.getElementById('videoModal').classList.add('open');
+}
+
+function completeCurrentLesson() {
+  if (!currentLesson) return;
+  progress[lessonId(currentLesson.lesson)] = { completedAt: new Date().toISOString() };
+  saveProgress();
+  closeModal();
+  openStage(currentLesson.stageNum);
 }
 
 function closeModal() {
   document.getElementById('videoModal').classList.remove('open');
   document.getElementById('videoFrame').src = '';
+  currentLesson = null;
 }
 
 async function doLogout() {

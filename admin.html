@@ -96,6 +96,7 @@ textarea { height:80px; resize:vertical; }
     <div class="sec-title">إضافة درس جديد</div>
     <div class="form-group">
       <label>عنوان الدرس</label>
+      <div style="font-size:11px;color:#64748b;margin:-4px 0 7px;">هذا الاسم سيظهر للطالب داخل قائمة دروس المرحلة.</div>
       <input type="text" id="l-title" placeholder="مثال: كيف تصنع شخصية AI" />
     </div>
     <div class="form-group">
@@ -117,7 +118,7 @@ textarea { height:80px; resize:vertical; }
       <input type="text" id="l-video" placeholder="https://iframe.mediadelivery.net/embed/..." />
     </div>
     <div class="form-group">
-      <label>ينفتح بعد كم يوم من الاشتراك؟</label>
+      <label>المرحلة تنفتح بعد كم يوم من الاشتراك؟</label>
       <input type="number" id="l-days" value="0" min="0" />
     </div>
     <div class="form-group">
@@ -266,8 +267,8 @@ async function loadLessons() {
   document.getElementById('lessons-list').innerHTML = lessons.map(l => `
     <div class="lesson-card">
       <div class="lesson-info">
-        <h3>المرحلة ${l.display_order}: ${l.title}</h3>
-        <p>ينفتح بعد ${l.unlock_after_days} يوم</p>
+        <h3>${l.title}</h3>
+        <p>المرحلة ${l.display_order} · تنفتح بعد ${l.unlock_after_days} يوم</p>
       </div>
       <button class="btn btn-red" onclick="deleteLesson('${l.id}')">حذف</button>
     </div>`).join('');

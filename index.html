@@ -119,6 +119,62 @@ footer {
   margin-bottom:14px; font-size:14px;
 }
 .copy { font-size:11px; color:#374151; margin-top:8px; }
+
+/* HAMBURGER MENU */
+.menu-btn {
+  display:flex; flex-direction:column; justify-content:center; gap:5px;
+  width:42px; height:42px; border:1px solid #1e2a3a; border-radius:10px;
+  background:#111827; cursor:pointer; padding:9px;
+}
+.menu-btn span { display:block; height:2px; width:100%; background:#f97316; border-radius:2px; }
+.menu-panel {
+  position:fixed; top:0; right:0; width:min(310px,88vw); height:100vh;
+  background:#0f1729; border-left:1px solid #1e2a3a; z-index:1000;
+  transform:translateX(105%); transition:transform .25s ease;
+  padding:22px 18px; box-shadow:-18px 0 45px rgba(0,0,0,.35);
+}
+.menu-panel.open { transform:translateX(0); }
+.menu-head { display:flex; align-items:center; justify-content:space-between; padding-bottom:18px; border-bottom:1px solid #1e2a3a; }
+.menu-head strong { font-size:17px; color:#f97316; }
+.menu-close { background:transparent; border:0; color:#94a3b8; font-size:24px; cursor:pointer; }
+.menu-links { display:flex; flex-direction:column; gap:6px; padding-top:16px; }
+.menu-links a {
+  display:block; color:#cbd5e1; text-decoration:none; padding:13px 12px;
+  border-radius:10px; font-size:14px;
+}
+.menu-links a:hover { background:#111827; color:#fff; }
+.menu-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:999;
+  display:none; backdrop-filter:blur(2px);
+}
+.menu-overlay.open { display:block; }
+
+/* AI PLATFORMS MARQUEE */
+.ai-tools-section { overflow:hidden; background:#0f1729; }
+.tools-marquee {
+  position:relative; overflow:hidden; padding:5px 0;
+  mask-image:linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  -webkit-mask-image:linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+.tools-track {
+  display:flex; width:max-content; gap:10px; padding:7px 0;
+  animation:ai-marquee-left 28s linear infinite;
+}
+.tools-track.reverse { animation-name:ai-marquee-right; }
+.tool-pill {
+  white-space:nowrap; background:#111827; border:1px solid #263247;
+  color:#cbd5e1; border-radius:999px; padding:8px 15px; font-size:12px;
+  font-weight:700;
+}
+@keyframes ai-marquee-left { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+@keyframes ai-marquee-right { from { transform:translateX(-50%); } to { transform:translateX(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .tools-track { animation-play-state:paused; }
+}
+@media (max-width:560px) {
+  .nav-btns { display:none; }
+}
+
 </style>
 </head>
 <body>
@@ -126,18 +182,34 @@ footer {
 <!-- NAV -->
 <nav>
   <div class="logo">🎬 AI Academy</div>
-  <div class="nav-btns">
-    <a href="login.html">دخول</a>
-    <a href="register.html" class="btn-orange">اشترك</a>
-  </div>
+  <button class="menu-btn" onclick="toggleMenu()" aria-label="فتح القائمة" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+<aside class="menu-panel" id="menuPanel" aria-hidden="true">
+  <div class="menu-head">
+    <strong>🎬 AI Academy</strong>
+    <button class="menu-close" onclick="closeMenu()" aria-label="إغلاق">✕</button>
+  </div>
+  <div class="menu-links">
+    <a href="index.html">🏠 الرئيسية</a>
+    <a href="#stages" onclick="closeMenu()">📚 المراحل التعليمية</a>
+    <a href="about.html">ℹ️ من نحن</a>
+    <a href="how-it-works.html">🎯 كيف تعمل الأكاديمية؟</a>
+    <a href="#faq" onclick="closeMenu()">❓ الأسئلة الشائعة</a>
+    <a href="https://wa.me/963951761240" target="_blank">📱 تواصل معنا</a>
+    <a href="login.html">🔐 تسجيل الدخول</a>
+  </div>
+</aside>
 
 <!-- HERO -->
 <section class="hero">
   <div class="badge">🚀 أول أكاديمية سورية لفيديوهات AI</div>
   <h1>تعلم صناعة فيديوهات <span>احترافية</span><br>بالذكاء الاصطناعي</h1>
   <p>من هاتفك وبدون أي خبرة تقنية — تعلم خطوة بخطوة كيف تصنع فيديوهات وإعلانات AI وتحوّلها لدخل حقيقي</p>
-  <a href="register.html" class="btn-big">ابدأ الآن — 5$ فقط شهرياً</a>
+  <a href="login.html" class="btn-big">ابدأ الآن — تسجيل الدخول</a>
   <div class="stats">
     <div><div class="stat-num">9</div><div class="stat-lbl">مراحل تعليمية</div></div>
     <div><div class="stat-num">5$</div><div class="stat-lbl">فقط شهرياً</div></div>
@@ -148,7 +220,7 @@ footer {
 <div class="divider"></div>
 
 <!-- STAGES -->
-<section>
+<section id="stages">
   <div class="sec-title">محتوى الأكاديمية</div>
   <div class="sec-sub">9 مراحل متدرجة تأخذك من الصفر للاحتراف</div>
   <div class="stages">
@@ -161,6 +233,26 @@ footer {
     <div class="stage"><div class="stage-n">7</div><div><h3>محتوى السوشيال ميديا</h3><p>ريلز وتيك توك وفيسبوك بالذكاء الاصطناعي</p></div></div>
     <div class="stage"><div class="stage-n">8</div><div><h3>صناعة الأفلام القصيرة</h3><p>قصص وأفلام كاملة من الهاتف</p></div></div>
     <div class="stage"><div class="stage-n">9</div><div><h3>الأتمتة وتوليد المحتوى التلقائي</h3><p>نظام ينتج المحتوى لوحده</p></div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- AI PLATFORMS -->
+<section class="ai-tools-section">
+  <div class="sec-title">عالم الذكاء الاصطناعي</div>
+  <div class="sec-sub">أدوات ومنصات ستتعرف إليها خلال رحلتك التعليمية</div>
+  <div class="tools-marquee" dir="ltr">
+    <div class="tools-track">
+      <span class="tool-pill">Google</span><span class="tool-pill">OpenAI</span><span class="tool-pill">Anthropic</span><span class="tool-pill">Microsoft</span><span class="tool-pill">Meta AI</span><span class="tool-pill">Midjourney</span><span class="tool-pill">Runway</span><span class="tool-pill">HeyGen</span><span class="tool-pill">Kling AI</span><span class="tool-pill">ElevenLabs</span>
+      <span class="tool-pill">Google</span><span class="tool-pill">OpenAI</span><span class="tool-pill">Anthropic</span><span class="tool-pill">Microsoft</span><span class="tool-pill">Meta AI</span><span class="tool-pill">Midjourney</span><span class="tool-pill">Runway</span><span class="tool-pill">HeyGen</span><span class="tool-pill">Kling AI</span><span class="tool-pill">ElevenLabs</span>
+    </div>
+  </div>
+  <div class="tools-marquee" dir="ltr">
+    <div class="tools-track reverse">
+      <span class="tool-pill">Canva</span><span class="tool-pill">Adobe</span><span class="tool-pill">Perplexity</span><span class="tool-pill">xAI</span><span class="tool-pill">Stability AI</span><span class="tool-pill">CapCut</span><span class="tool-pill">Bunny.net</span><span class="tool-pill">Stripe</span><span class="tool-pill">شام كاش</span><span class="tool-pill">Blackmagic</span>
+      <span class="tool-pill">Canva</span><span class="tool-pill">Adobe</span><span class="tool-pill">Perplexity</span><span class="tool-pill">xAI</span><span class="tool-pill">Stability AI</span><span class="tool-pill">CapCut</span><span class="tool-pill">Bunny.net</span><span class="tool-pill">Stripe</span><span class="tool-pill">شام كاش</span><span class="tool-pill">Blackmagic</span>
+    </div>
   </div>
 </section>
 
@@ -184,14 +276,14 @@ footer {
       <div class="pay-tag">💳 شام كاش</div>
       <div class="pay-tag">🏦 تحويل محلي</div>
     </div>
-    <a href="register.html" class="btn-big" style="display:block">اشترك الآن</a>
+    <a href="login.html" class="btn-big" style="display:block">دخول الأكاديمية</a>
   </div>
 </section>
 
 <div class="divider"></div>
 
 <!-- FAQ -->
-<section>
+<section id="faq">
   <div class="sec-title">أسئلة شائعة</div>
   <div class="sec-sub">أجوبة على أكثر الأسئلة تكراراً</div>
 
@@ -245,6 +337,31 @@ if ('serviceWorker' in navigator) {
     });
   });
 }
+</script>
+
+<script>
+function toggleMenu() {
+  const panel = document.getElementById('menuPanel');
+  const overlay = document.getElementById('menuOverlay');
+  const btn = document.querySelector('.menu-btn');
+  const open = !panel.classList.contains('open');
+  panel.classList.toggle('open', open);
+  overlay.classList.toggle('open', open);
+  panel.setAttribute('aria-hidden', String(!open));
+  btn.setAttribute('aria-expanded', String(open));
+}
+function closeMenu() {
+  const panel = document.getElementById('menuPanel');
+  const overlay = document.getElementById('menuOverlay');
+  const btn = document.querySelector('.menu-btn');
+  panel.classList.remove('open');
+  overlay.classList.remove('open');
+  panel.setAttribute('aria-hidden', 'true');
+  btn.setAttribute('aria-expanded', 'false');
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeMenu();
+});
 </script>
 </body>
 </html>
