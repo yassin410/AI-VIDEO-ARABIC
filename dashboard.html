@@ -281,7 +281,7 @@ async function init() {
   const daysSinceStart = Math.max(0, Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24)));
   window.__academyEndDate = endDate.toLocaleDateString('ar-SY');
 
-  const { data: lessons, error } = await sb.from('lessons').select('*').order('display_order').order('created_at', { ascending:true });
+  const { data: lessons, error } = await sb.from('lessons').select('*').order('display_order');
   if (error) {
     content.innerHTML = '<div class="empty-stage">تعذر تحميل الدروس. حاول تحديث الصفحة.</div>';
     return;
