@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
 body { font-family:'Cairo',sans-serif; background:#0a0e1a; color:#fff; direction:rtl; }
 
 /* NAV */
@@ -54,7 +55,7 @@ nav {
 .stat-lbl { font-size:11px; color:#64748b; }
 
 /* SECTIONS */
-section { padding:48px 20px; }
+section { padding:48px 20px; scroll-margin-top:72px; }
 .sec-title { font-size:24px; font-weight:900; text-align:center; margin-bottom:6px; }
 .sec-sub { text-align:center; color:#64748b; font-size:13px; margin-bottom:26px; }
 .divider { height:1px; background:#1e2a3a; }
@@ -74,6 +75,30 @@ section { padding:48px 20px; }
 }
 .stage h3 { font-size:14px; font-weight:700; margin-bottom:2px; }
 .stage p { font-size:11px; color:#64748b; }
+
+/* INFO SECTIONS */
+.info-card {
+  background:#111827;
+  border:1px solid #1e2a3a;
+  border-radius:20px;
+  padding:24px 20px;
+  max-width:760px;
+  margin:0 auto 14px;
+}
+.info-card h3 {
+  color:#f97316;
+  font-size:18px;
+  margin-bottom:12px;
+}
+.info-card p,
+.info-card li {
+  color:#94a3b8;
+  font-size:13px;
+  line-height:2;
+}
+.info-card ul {
+  padding-right:20px;
+}
 
 /* PRICING */
 .pricing-wrap { background:#0f1729; }
@@ -174,7 +199,6 @@ footer {
 @media (max-width:560px) {
   .nav-btns { display:none; }
 }
-
 </style>
 </head>
 <body>
@@ -194,18 +218,18 @@ footer {
     <button class="menu-close" onclick="closeMenu()" aria-label="إغلاق">✕</button>
   </div>
   <div class="menu-links">
-    <a href="index.html">🏠 الرئيسية</a>
-    <a href="#stages" onclick="closeMenu()">📚 المراحل التعليمية</a>
-    <a href="about.html">ℹ️ من نحن</a>
-    <a href="how-it-works.html">🎯 كيف تعمل الأكاديمية؟</a>
-    <a href="#faq" onclick="closeMenu()">❓ الأسئلة الشائعة</a>
-    <a href="https://wa.me/963951761240" target="_blank">📱 تواصل معنا</a>
+    <a href="#top" onclick="goToSection('top')">🏠 الرئيسية</a>
+    <a href="#stages" onclick="goToSection('stages')">📚 المراحل التعليمية</a>
+    <a href="#about" onclick="goToSection('about')">ℹ️ من نحن</a>
+    <a href="#how-it-works" onclick="goToSection('how-it-works')">🎯 كيف تعمل الأكاديمية؟</a>
+    <a href="#faq" onclick="goToSection('faq')">❓ الأسئلة الشائعة</a>
+    <a href="https://wa.me/963951761240" target="_blank" rel="noopener">📱 تواصل معنا</a>
     <a href="login.html">🔐 تسجيل الدخول</a>
   </div>
 </aside>
 
 <!-- HERO -->
-<section class="hero">
+<section class="hero" id="top">
   <div class="badge">🚀 أول أكاديمية سورية لفيديوهات AI</div>
   <h1>تعلم صناعة فيديوهات <span>احترافية</span><br>بالذكاء الاصطناعي</h1>
   <p>من هاتفك وبدون أي خبرة تقنية — تعلم خطوة بخطوة كيف تصنع فيديوهات وإعلانات AI وتحوّلها لدخل حقيقي</p>
@@ -233,6 +257,73 @@ footer {
     <div class="stage"><div class="stage-n">7</div><div><h3>محتوى السوشيال ميديا</h3><p>ريلز وتيك توك وفيسبوك بالذكاء الاصطناعي</p></div></div>
     <div class="stage"><div class="stage-n">8</div><div><h3>صناعة الأفلام القصيرة</h3><p>قصص وأفلام كاملة من الهاتف</p></div></div>
     <div class="stage"><div class="stage-n">9</div><div><h3>الأتمتة وتوليد المحتوى التلقائي</h3><p>نظام ينتج المحتوى لوحده</p></div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="sec-title">من نحن</div>
+  <div class="sec-sub">AI Academy — أكاديمية الفيديو بالذكاء الاصطناعي</div>
+
+  <div class="info-card">
+    <h3>ما هي AI Academy؟</h3>
+    <p>
+      أكاديمية تعليمية عربية تركّز على استخدام أدوات الذكاء الاصطناعي بطريقة عملية،
+      مع دروس متدرجة تساعدك على الانتقال من الأساسيات إلى تنفيذ مشاريع حقيقية.
+    </p>
+  </div>
+
+  <div class="info-card">
+    <h3>فلسفتنا</h3>
+    <ul>
+      <li>التعلم العملي بدل الحشو النظري.</li>
+      <li>شرح الأدوات خطوة بخطوة وبأسلوب واضح.</li>
+      <li>تحديث المحتوى مع تطور أدوات الذكاء الاصطناعي.</li>
+      <li>التعلم من الهاتف قدر الإمكان.</li>
+    </ul>
+  </div>
+
+  <div class="info-card">
+    <h3>هدفنا</h3>
+    <p>
+      أن نساعد الشباب في سوريا والوطن العربي على تعلّم صناعة فيديوهات احترافية
+      بالذكاء الاصطناعي، وتحويل المهارة إلى مشاريع وفرص دخل حقيقية.
+    </p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <div class="sec-title">كيف تعمل الأكاديمية؟</div>
+  <div class="sec-sub">رحلتك التعليمية خطوة بخطوة</div>
+
+  <div class="info-card">
+    <h3>1️⃣ أنشئ حسابك</h3>
+    <p>سجّل حسابك في الأكاديمية ثم انتقل إلى خطوات الاشتراك والتفعيل.</p>
+  </div>
+
+  <div class="info-card">
+    <h3>2️⃣ ابدأ من المرحلة الأولى</h3>
+    <p>تبدأ من الأساسيات ثم تتقدم تدريجياً عبر المراحل التعليمية.</p>
+  </div>
+
+  <div class="info-card">
+    <h3>3️⃣ شاهد الدروس وطبّق</h3>
+    <p>كل درس يشرح فكرة أو أداة بطريقة عملية، والهدف أن تطبق بنفسك وليس فقط أن تشاهد.</p>
+  </div>
+
+  <div class="info-card">
+    <h3>4️⃣ تقدّم خطوة بخطوة</h3>
+    <p>المراحل مصممة بشكل متدرج حتى تبني مهاراتك واحدة فوق الأخرى.</p>
+  </div>
+
+  <div class="info-card">
+    <h3>5️⃣ نفّذ مشاريع حقيقية</h3>
+    <p>مع تقدمك ستنتقل من التجارب البسيطة إلى صناعة فيديوهات ومحتوى وإعلانات بالذكاء الاصطناعي.</p>
   </div>
 </section>
 
@@ -301,7 +392,7 @@ footer {
   </div>
   <div class="faq">
     <div class="faq-q" onclick="toggle(this)">ماذا يحدث بعد الاشتراك؟<span>+</span></div>
-    <div class="faq-a">تنشئ حساباً وتدفع، نفعّل حسابك خلال ساعات. بعدها تبدأ المراحل تنفتح تلقائياً كل أسبوع.</div>
+    <div class="faq-a">تنشئ حساباً وتدفع، نفعّل حسابك خلال ساعات. بعدها تبدأ المراحل تنفتح تدريجياً حسب نظام الأكاديمية.</div>
   </div>
   <div class="faq">
     <div class="faq-q" onclick="toggle(this)">هل يمكنني إلغاء الاشتراك؟<span>+</span></div>
@@ -312,8 +403,8 @@ footer {
 <!-- FOOTER -->
 <footer>
   <div style="font-size:20px;font-weight:900;color:#f97316;margin-bottom:14px;">🎬 AI Academy</div>
-  <!-- ← غيّر الرقم هون لرقمك الحقيقي مع رمز البلد -->
-  <a href="https://wa.me/447473947323" class="wa-btn">
+  <!-- ← رقم خدمة العملاء -->
+  <a href="https://wa.me/447473947323" class="wa-btn" target="_blank" rel="noopener">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
     تواصل معنا على واتساب
   </a>
@@ -326,6 +417,16 @@ function toggle(el) {
   const s = el.querySelector('span');
   a.classList.toggle('open');
   s.textContent = a.classList.contains('open') ? '−' : '+';
+}
+
+function goToSection(id) {
+  closeMenu();
+  setTimeout(function () {
+    const target = document.getElementById(id);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 80);
 }
 </script>
 
@@ -350,6 +451,7 @@ function toggleMenu() {
   panel.setAttribute('aria-hidden', String(!open));
   btn.setAttribute('aria-expanded', String(open));
 }
+
 function closeMenu() {
   const panel = document.getElementById('menuPanel');
   const overlay = document.getElementById('menuOverlay');
@@ -359,6 +461,7 @@ function closeMenu() {
   panel.setAttribute('aria-hidden', 'true');
   btn.setAttribute('aria-expanded', 'false');
 }
+
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeMenu();
 });
