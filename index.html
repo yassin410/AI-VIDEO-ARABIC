@@ -30,8 +30,97 @@ nav {
   background:#f97316; color:#fff !important; font-weight:700;
 }
 
-/* HERO */
-.hero { padding:56px 20px 36px; text-align:center; }
+/* HERO — نص فقط، بدون فيديو خلفية (الفيديو صار بصندوق منفصل تحت) */
+.hero {
+  position:relative;
+  padding:64px 20px 40px;
+  text-align:center;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(249,115,22,0.14), transparent 60%),
+    #0a0e1a;
+}
+.hero-content {
+  position:relative;
+  z-index:2;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+/* VIDEO REVEAL — صندوق فيديو بمقاس يوتيوب (16:9) مع تأثير كشف "فتحة عدسة كاميرا" */
+.video-reveal { padding:20px 20px 4px; }
+.video-reveal-box {
+  position:relative;
+  width:100%;
+  max-width:720px;
+  aspect-ratio:16/9;
+  margin:0 auto;
+  border-radius:20px;
+  overflow:hidden;
+  background:linear-gradient(135deg,#111827,#0f1729 60%,#1e2a3a);
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+}
+.video-placeholder {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(249,115,22,.18), transparent 60%),
+    radial-gradient(circle at 75% 70%, rgba(30,42,58,.9), #0f1729 70%);
+  transition:opacity .6s ease .2s;
+  z-index:1;
+}
+.ph-icon {
+  font-size:34px;
+  filter:drop-shadow(0 0 14px rgba(249,115,22,.55));
+  animation:ph-spin 3.2s linear infinite;
+  transform-origin:50% 50%;
+  display:inline-block;
+}
+.ph-text {
+  font-size:13px; font-weight:700; color:#f97316; letter-spacing:.5px;
+  white-space:nowrap;
+  transition:opacity .5s ease, transform .5s ease;
+}
+@keyframes ph-spin { to { transform:rotate(360deg); } }
+.reveal-video {
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; z-index:2;
+  --reveal:0;
+  clip-path:circle(calc(var(--reveal) * 75%) at 50% 50%);
+  transition:clip-path 2.4s cubic-bezier(.16,.84,.44,1);
+}
+.reveal-ring {
+  position:absolute; top:50%; left:50%;
+  width:150%; aspect-ratio:1/1;
+  border:2px solid rgba(249,115,22,.85);
+  border-radius:50%;
+  box-shadow:0 0 26px 6px rgba(249,115,22,.45);
+  --reveal:0;
+  transform:translate(-50%,-50%) scale(var(--reveal));
+  transition:transform 2.4s cubic-bezier(.16,.84,.44,1), opacity .3s ease 2.1s;
+  opacity:1; z-index:3; pointer-events:none;
+}
+.video-reveal-box.is-revealed .video-placeholder { opacity:0; pointer-events:none; transition:opacity .5s ease 2.1s; }
+.video-reveal-box.is-revealed .ph-text { opacity:0; transform:translateX(26px); }
+.video-reveal-box.is-revealed .ph-icon { animation:ph-spin-grow 2.4s cubic-bezier(.16,.84,.44,1) forwards; }
+@keyframes ph-spin-grow {
+  0%   { transform:scale(1) rotate(0deg);   opacity:1; }
+  70%  { transform:scale(7) rotate(300deg); opacity:1; }
+  100% { transform:scale(10) rotate(340deg); opacity:0; }
+}
+.video-reveal-box.is-revealed .reveal-video { --reveal:1; }
+.video-reveal-box.is-revealed .reveal-ring { --reveal:1; opacity:0; }
+@media (prefers-reduced-motion:reduce) {
+  .reveal-video, .reveal-ring, .video-placeholder { transition:none !important; }
+}
 .badge {
   display:inline-block;
   background:rgba(249,115,22,0.12);
@@ -191,6 +280,22 @@ footer {
   color:#cbd5e1; border-radius:999px; padding:8px 15px; font-size:12px;
   font-weight:700;
 }
+.proof-grid, .audience-grid, .journey-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:900px; margin:0 auto; }
+.proof-card, .audience-card, .journey-card { background:#111827; border:1px solid #1e2a3a; border-radius:16px; padding:20px; }
+.proof-card { position:relative; overflow:hidden; min-height:170px; }
+.proof-card::before { content:""; position:absolute; width:130px; height:130px; border-radius:50%; background:rgba(249,115,22,.13); top:-55px; left:-35px; }
+.proof-icon { position:relative; font-size:30px; margin-bottom:14px; }
+.proof-card h3, .audience-card h3, .journey-card h3 { font-size:15px; margin-bottom:7px; }
+.proof-card p, .audience-card p, .journey-card p { position:relative; color:#94a3b8; font-size:12px; line-height:1.8; }
+.audience-grid { grid-template-columns:repeat(2,1fr); }
+.audience-card { display:flex; gap:12px; align-items:flex-start; }
+.audience-icon { flex:0 0 38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(249,115,22,.13); font-size:20px; }
+.journey-grid { grid-template-columns:repeat(3,1fr); counter-reset:journey; }
+.journey-card { position:relative; }
+.journey-card::before { counter-increment:journey; content:"0" counter(journey); color:#f97316; font-size:12px; font-weight:900; display:block; margin-bottom:18px; }
+.value-strip { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; max-width:900px; margin:0 auto; }
+.value-chip { border:1px solid #263247; background:#111827; color:#cbd5e1; border-radius:999px; padding:9px 14px; font-size:12px; }
+@media (max-width:720px) { .proof-grid, .audience-grid, .journey-grid { grid-template-columns:1fr; } }
 @keyframes ai-marquee-left { from { transform:translateX(0); } to { transform:translateX(-50%); } }
 @keyframes ai-marquee-right { from { transform:translateX(-50%); } to { transform:translateX(0); } }
 @media (prefers-reduced-motion: reduce) {
@@ -205,7 +310,7 @@ footer {
 
 <!-- NAV -->
 <nav>
-  <div class="logo">🎬 AI Academy</div>
+  <div class="logo">🎬 AIVideoSyria</div>
   <button class="menu-btn" onclick="toggleMenu()" aria-label="فتح القائمة" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
@@ -214,30 +319,91 @@ footer {
 <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
 <aside class="menu-panel" id="menuPanel" aria-hidden="true">
   <div class="menu-head">
-    <strong>🎬 AI Academy</strong>
+    <strong>🎬 AIVideoSyria</strong>
     <button class="menu-close" onclick="closeMenu()" aria-label="إغلاق">✕</button>
   </div>
   <div class="menu-links">
     <a href="#top" onclick="goToSection('top')">🏠 الرئيسية</a>
+    <a href="#value" onclick="goToSection('value')">✨ ماذا ستتعلم؟</a>
+    <a href="#journey" onclick="goToSection('journey')">🧭 رحلة العضو</a>
     <a href="#stages" onclick="goToSection('stages')">📚 المراحل التعليمية</a>
+    <a href="#inside" onclick="goToSection('inside')">🎁 مزايا العضوية</a>
     <a href="#about" onclick="goToSection('about')">ℹ️ من نحن</a>
     <a href="#how-it-works" onclick="goToSection('how-it-works')">🎯 كيف تعمل الأكاديمية؟</a>
     <a href="#faq" onclick="goToSection('faq')">❓ الأسئلة الشائعة</a>
-    <a href="https://wa.me/963951761240" target="_blank" rel="noopener">📱 تواصل معنا</a>
+    <a href="https://wa.me/447473947323" target="_blank" rel="noopener">📱 تواصل معنا</a>
     <a href="login.html">🔐 تسجيل الدخول</a>
   </div>
 </aside>
 
+<!--
+  ملاحظة للأداء: اضغط ملف الفيديو قبل الرفع (مثلاً عبر HandBrake أو ffmpeg)
+  وحاول إبقاء حجمه تحت 5–8 ميجا إن أمكن.
+-->
+<div class="video-reveal">
+  <div class="video-reveal-box" id="revealBox">
+    <div class="video-placeholder">
+      <div class="ph-icon">🎬</div>
+      <div class="ph-text">AIVideoSyria</div>
+    </div>
+    <video class="reveal-video" muted loop playsinline preload="auto" poster="hero-poster.jpg">
+      <source src="hero-bg.mp4" type="video/mp4">
+      <source src="hero-bg.webm" type="video/webm">
+    </video>
+    <div class="reveal-ring"></div>
+  </div>
+</div>
+
 <!-- HERO -->
 <section class="hero" id="top">
-  <div class="badge">🚀 أول أكاديمية سورية لفيديوهات AI</div>
-  <h1>تعلم صناعة فيديوهات <span>احترافية</span><br>بالذكاء الاصطناعي</h1>
-  <p>من هاتفك وبدون أي خبرة تقنية — تعلم خطوة بخطوة كيف تصنع فيديوهات وإعلانات AI وتحوّلها لدخل حقيقي</p>
-  <a href="login.html" class="btn-big">ابدأ الآن — تسجيل الدخول</a>
-  <div class="stats">
-    <div><div class="stat-num">9</div><div class="stat-lbl">مراحل تعليمية</div></div>
-    <div><div class="stat-num">5$</div><div class="stat-lbl">فقط شهرياً</div></div>
-    <div><div class="stat-num">100%</div><div class="stat-lbl">من الهاتف</div></div>
+  <div class="hero-content">
+    <div class="badge">🚀 AIVideoSyria — تعلّم عملي من سوريا</div>
+    <h1>اصنع فيديوهات <span>احترافية</span><br>بالذكاء الاصطناعي من هاتفك</h1>
+    <p>مسار عملي بالعربي السوري: من أول فكرة وصورة، إلى فيديو وإعلان جاهز للنشر أو البيع.</p>
+    <a href="register.html" class="btn-big">أنشئ حسابك وابدأ</a>
+    <div class="stats">
+      <div><div class="stat-num">9</div><div class="stat-lbl">مراحل تعليمية</div></div>
+      <div><div class="stat-num">5$</div><div class="stat-lbl">فقط شهرياً</div></div>
+      <div><div class="stat-num">100%</div><div class="stat-lbl">من الهاتف</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- VALUE PROMISE -->
+<section id="value">
+  <div class="sec-title">شو رح تعمل بالأكاديمية؟</div>
+  <div class="sec-sub">تعلّم بالتطبيق، مو بالمشاهدة وبس</div>
+  <div class="proof-grid">
+    <div class="proof-card"><div class="proof-icon">💡</div><h3>حوّل الفكرة لمشهد</h3><p>تتعلم كيف تكتب الفكرة وتحوّلها إلى صورة ومشهد قابل للتنفيذ.</p></div>
+    <div class="proof-card"><div class="proof-icon">🎞️</div><h3>ابنِ فيديو كامل</h3><p>تجمع الصور والحركة والصوت والمونتاج ضمن سير عمل واضح من الهاتف.</p></div>
+    <div class="proof-card"><div class="proof-icon">💼</div><h3>جهّز شغلك للسوق</h3><p>تتدرّب على الإعلانات والريلز والمشاريع التي يمكن عرضها على العملاء.</p></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="for-who">
+  <div class="sec-title">لمين صمّمناها؟</div>
+  <div class="sec-sub">ما بدك تكون خبير لتبدأ</div>
+  <div class="audience-grid">
+    <div class="audience-card"><div class="audience-icon">📱</div><div><h3>المبتدئ</h3><p>ما بيعرف من وين يبدأ وبدّه طريق مرتب خطوة بخطوة.</p></div></div>
+    <div class="audience-card"><div class="audience-icon">📣</div><div><h3>صاحب صفحة أو مشروع</h3><p>بدّه محتوى وإعلانات أقوى بدون فريق تصوير كبير.</p></div></div>
+    <div class="audience-card"><div class="audience-icon">🧑‍💻</div><div><h3>المستقل</h3><p>بدّه يطوّر مهارة يقدمها للعملاء أو يبني منها خدمة.</p></div></div>
+    <div class="audience-card"><div class="audience-icon">🚀</div><div><h3>صانع المحتوى</h3><p>بدّه ينتج ريلز وفيديوهات أكثر وبوقت وتكلفة أقل.</p></div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="journey">
+  <div class="sec-title">رحلتك داخل AIVideoSyria</div>
+  <div class="sec-sub">ثلاث حركات بسيطة بكل درس</div>
+  <div class="journey-grid">
+    <div class="journey-card"><h3>تعلّم</h3><p>شاهد شرحًا قصيرًا ومباشرًا للأداة أو المهارة.</p></div>
+    <div class="journey-card"><h3>طبّق</h3><p>نفّذ المهمة بنفسك باستخدام قالب أو Prompt واضح.</p></div>
+    <div class="journey-card"><h3>طوّر</h3><p>اعرض النتيجة، خذ ملاحظة، وانتقل للخطوة التالية.</p></div>
   </div>
 </section>
 
@@ -265,10 +431,10 @@ footer {
 <!-- ABOUT -->
 <section id="about">
   <div class="sec-title">من نحن</div>
-  <div class="sec-sub">AI Academy — أكاديمية الفيديو بالذكاء الاصطناعي</div>
+  <div class="sec-sub">AIVideoSyria — أكاديمية سورية لصناعة فيديوهات الذكاء الاصطناعي</div>
 
   <div class="info-card">
-    <h3>ما هي AI Academy؟</h3>
+    <h3>ما هي AIVideoSyria؟</h3>
     <p>
       أكاديمية تعليمية عربية تركّز على استخدام أدوات الذكاء الاصطناعي بطريقة عملية،
       مع دروس متدرجة تساعدك على الانتقال من الأساسيات إلى تنفيذ مشاريع حقيقية.
@@ -291,6 +457,16 @@ footer {
       أن نساعد الشباب في سوريا والوطن العربي على تعلّم صناعة فيديوهات احترافية
       بالذكاء الاصطناعي، وتحويل المهارة إلى مشاريع وفرص دخل حقيقية.
     </p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="inside">
+  <div class="sec-title">شو بتحصل كعضو؟</div>
+  <div class="sec-sub">قيمة عملية تتوسع مع المحتوى</div>
+  <div class="value-strip">
+    <span class="value-chip">🎬 دروس تطبيقية</span><span class="value-chip">🧩 Prompts جاهزة</span><span class="value-chip">🗂️ قوالب وأفكار</span><span class="value-chip">🔄 تحديثات أدوات</span><span class="value-chip">📱 تعلّم من الهاتف</span><span class="value-chip">💬 دعم عبر واتساب</span>
   </div>
 </section>
 
@@ -402,13 +578,13 @@ footer {
 
 <!-- FOOTER -->
 <footer>
-  <div style="font-size:20px;font-weight:900;color:#f97316;margin-bottom:14px;">🎬 AI Academy</div>
+  <div style="font-size:20px;font-weight:900;color:#f97316;margin-bottom:14px;">🎬 AIVideoSyria</div>
   <!-- ← رقم خدمة العملاء -->
   <a href="https://wa.me/447473947323" class="wa-btn" target="_blank" rel="noopener">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
     تواصل معنا على واتساب
   </a>
-  <div class="copy">© 2026 AI Academy — جميع الحقوق محفوظة</div>
+  <div class="copy">© 2026 AIVideoSyria — جميع الحقوق محفوظة</div>
 </footer>
 
 <script>
@@ -465,6 +641,33 @@ function closeMenu() {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeMenu();
 });
+</script>
+
+<script>
+(function () {
+  var box = document.getElementById('revealBox');
+  if (!box) return;
+  var video = box.querySelector('.reveal-video');
+
+  function reveal() {
+    box.classList.add('is-revealed');
+    if (video) { video.play().catch(function () {}); }
+  }
+
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          reveal();
+          io.disconnect();
+        }
+      });
+    }, { threshold: 0.35 });
+    io.observe(box);
+  } else {
+    reveal();
+  }
+})();
 </script>
 </body>
 </html>

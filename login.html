@@ -6,7 +6,7 @@
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#f97316">
 <link rel="apple-touch-icon" href="./icon-192.png">
-<title>تسجيل الدخول — AI Academy</title>
+<title>تسجيل الدخول — AIVideoSyria</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 
 <style>
@@ -65,6 +65,9 @@ input::placeholder { color:#374151; }
 
 .reg-link { text-align:center; margin-top:18px; font-size:13px; color:#64748b; }
 .reg-link a { color:#f97316; text-decoration:none; font-weight:700; }
+.forgot-link { display:block; text-align:center; margin-top:12px; color:#f97316; font-size:12px; text-decoration:none; }
+.reset-box { display:none; margin-top:16px; padding-top:16px; border-top:1px solid #1e2a3a; }
+.reset-box p { color:#94a3b8; font-size:12px; line-height:1.7; margin-bottom:10px; text-align:center; }
 
 /* زر واتساب العائم */
 .floating-wa {
@@ -93,7 +96,7 @@ input::placeholder { color:#374151; }
 <body>
 
 <nav>
-  <a href="index.html" class="logo">🎬 AI Academy</a>
+  <a href="index.html" class="logo">🎬 AIVideoSyria</a>
   <a href="index.html" class="back">← الرئيسية</a>
 </nav>
 
@@ -113,6 +116,13 @@ input::placeholder { color:#374151; }
     </div>
 
     <button class="btn-submit" id="loginBtn" onclick="doLogin()">دخول</button>
+
+    <a href="#" class="forgot-link" onclick="showReset(event)">نسيت كلمة المرور؟</a>
+
+    <div class="reset-box" id="resetBox">
+      <p>اكتب بريدك الإلكتروني وسنرسل لك رابطًا لإنشاء كلمة مرور جديدة.</p>
+      <button class="btn-submit" id="resetBtn" onclick="sendReset()">إرسال رابط الاستعادة</button>
+    </div>
 
     <div class="msg" id="msg"></div>
 
@@ -148,6 +158,31 @@ function showMsg(text, type) {
 function togglePassword() {
   const input = document.getElementById('password');
   input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function showReset(event) {
+  event.preventDefault();
+  document.getElementById('resetBox').style.display = 'block';
+  document.getElementById('email').focus();
+}
+
+async function sendReset() {
+  const email = document.getElementById('email').value.trim();
+  const btn = document.getElementById('resetBtn');
+  if (!email) { showMsg('اكتب بريدك الإلكتروني أولاً', 'error'); return; }
+  btn.disabled = true;
+  btn.textContent = 'جاري الإرسال...';
+  try {
+    const redirectTo = window.location.href.replace(/login\.html(?:\?.*)?$/, 'reset-password.html');
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo });
+    if (error) throw error;
+    showMsg('تم إرسال رابط الاستعادة إلى بريدك الإلكتروني', 'success');
+    btn.textContent = 'تم الإرسال ✓';
+  } catch (err) {
+    showMsg('تعذر إرسال الرابط. تأكد من البريد وحاول مجددًا.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'إرسال رابط الاستعادة';
+  }
 }
 
 async function doLogin() {

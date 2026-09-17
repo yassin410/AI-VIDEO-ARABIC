@@ -6,15 +6,23 @@
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#f97316">
 <link rel="apple-touch-icon" href="./icon-192.png">
-<title>لوحة الطالب — AI Academy</title>
+<title>لوحة الطالب — AIVideoSyria</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Cairo',sans-serif; background:#0a0e1a; color:#fff; direction:rtl; min-height:100vh; }
+body { font-family:'Cairo',sans-serif; background:#0a0e1a; color:#fff; direction:rtl; min-height:100vh; padding-bottom:82px; }
 nav { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid #1e2a3a; position:sticky; top:0; background:#0a0e1a; z-index:10; }
 .logo { font-size:17px; font-weight:900; color:#f97316; }
 .logout-btn { background:transparent; border:1px solid #1e2a3a; color:#94a3b8; padding:7px 14px; border-radius:8px; font-family:'Cairo',sans-serif; font-size:13px; cursor:pointer; }
 .container { padding:24px 20px; max-width:600px; margin:0 auto; }
+.account-card { background:#111827; border:1px solid #1e2a3a; border-radius:16px; padding:18px; margin-top:18px; }
+.account-title { font-size:16px; font-weight:900; margin-bottom:12px; }
+.account-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.account-card label { display:block; color:#94a3b8; font-size:12px; margin-bottom:5px; }
+.account-card input { width:100%; background:#0a0e1a; color:#fff; border:1px solid #1e2a3a; border-radius:9px; padding:10px; font-family:'Cairo',sans-serif; outline:none; }
+.account-card input:focus { border-color:#f97316; }
+.account-save { width:100%; margin-top:12px; background:#f97316; color:#fff; border:0; border-radius:9px; padding:11px; font-family:'Cairo',sans-serif; font-weight:700; cursor:pointer; }
+.account-msg { display:none; text-align:center; font-size:12px; margin-top:9px; color:#4ade80; }
 
 /* حالة pending */
 .status-card { border-radius:16px; padding:24px 20px; text-align:center; margin-bottom:20px; }
@@ -54,6 +62,7 @@ nav { display:flex; justify-content:space-between; align-items:center; padding:1
 .close-btn { background:transparent; border:none; color:#94a3b8; font-size:22px; cursor:pointer; }
 .video-wrap { position:relative; padding-bottom:56.25%; background:#000; }
 .video-wrap iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; }
+.video-watermark { position:absolute; inset:0; z-index:4; pointer-events:none; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.46); font-size:13px; font-weight:700; letter-spacing:.3px; transform:rotate(-18deg); text-shadow:0 1px 2px #000; }
 .modal-desc { padding:16px 20px; font-size:13px; color:#94a3b8; line-height:1.7; }
 
 /* loading */
@@ -82,18 +91,42 @@ nav { display:flex; justify-content:space-between; align-items:center; padding:1
 .complete-btn:disabled { opacity:.55; cursor:not-allowed; }
 .next-note { text-align:center; color:#64748b; font-size:11px; margin-top:8px; }
 .empty-stage { background:#111827; border:1px dashed #263247; border-radius:14px; padding:30px 18px; text-align:center; color:#64748b; font-size:13px; }
+.app-bottom-nav { position:fixed; top:auto; right:0; left:0; bottom:0; z-index:90; display:flex; justify-content:center; gap:4px; padding:8px 12px calc(8px + env(safe-area-inset-bottom)); background:rgba(10,14,26,.97); border-top:1px solid #1e2a3a; backdrop-filter:blur(12px); }
+.app-bottom-nav button { flex:1; max-width:190px; border:0; background:transparent; color:#64748b; padding:7px 8px; border-radius:10px; font:600 11px Cairo; cursor:pointer; }
+.app-bottom-nav button:hover, .app-bottom-nav button:focus { color:#f97316; background:rgba(249,115,22,.09); outline:none; }
+.nav-icon { display:block; font-size:19px; line-height:1.2; margin-bottom:2px; }
+.chat-modal-text { color:#94a3b8; font-size:13px; line-height:1.8; padding:18px 20px 0; text-align:center; }
+.chat-actions { display:flex; gap:8px; padding:18px 20px 20px; }
+.chat-actions a, .chat-actions button { flex:1; border:0; border-radius:10px; padding:11px 8px; font:700 12px Cairo; text-align:center; text-decoration:none; cursor:pointer; }
+.chat-actions a { background:#25d366; color:#fff; }
+.chat-actions button { background:#1e293b; color:#cbd5e1; }
 
 </style>
 </head>
 <body>
 <nav>
-  <div class="logo">🎬 AI Academy</div>
+  <div class="logo">🎬 AIVideoSyria</div>
   <button class="logout-btn" onclick="doLogout()">خروج</button>
 </nav>
 
 <div class="container">
   <div id="content" class="loading">⏳ جاري التحميل...</div>
+  <div class="account-card">
+    <div class="account-title">⚙️ بيانات الحساب</div>
+    <div class="account-grid">
+      <div><label for="profileName">الاسم</label><input id="profileName" type="text" placeholder="اسمك الكامل"></div>
+      <div><label for="profilePhone">رقم الواتساب</label><input id="profilePhone" type="tel" placeholder="09XXXXXXXX"></div>
+    </div>
+    <button class="account-save" id="profileSaveBtn" onclick="saveProfile()">حفظ التعديلات</button>
+    <div class="account-msg" id="profileMsg"></div>
+  </div>
 </div>
+
+<nav class="app-bottom-nav" aria-label="تنقل التطبيق">
+  <button type="button" onclick="goToLessons()"><span class="nav-icon">📚</span>الدروس</button>
+  <button type="button" onclick="goToAccount()"><span class="nav-icon">👤</span>حسابي</button>
+  <button type="button" onclick="openChat()"><span class="nav-icon">💬</span>الدردشة</button>
+</nav>
 
 <!-- صفحة دروس المرحلة -->
 <div class="modal" id="stageModal">
@@ -114,13 +147,22 @@ nav { display:flex; justify-content:space-between; align-items:center; padding:1
       <button class="close-btn" onclick="closeModal()">✕</button>
     </div>
     <div class="video-wrap">
-      <iframe id="videoFrame" allowfullscreen></iframe>
+      <iframe id="videoFrame" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+      <div class="video-watermark" id="videoWatermark" aria-hidden="true"></div>
     </div>
     <div class="modal-desc" id="modalDesc"></div>
     <div style="padding:0 20px 20px;">
       <button class="complete-btn" id="completeBtn" onclick="completeCurrentLesson()">✅ أنهيت الدرس — افتح الدرس التالي</button>
       <div class="next-note">اضغط الزر بعد مشاهدة الدرس بالكامل لفتح الدرس التالي.</div>
     </div>
+  </div>
+</div>
+
+<div class="modal" id="chatModal">
+  <div class="modal-box">
+    <div class="modal-header"><span class="modal-title">💬 الدردشة والدعم</span><button class="close-btn" onclick="closeChat()">✕</button></div>
+    <div class="chat-modal-text">إذا واجهتك مشكلة بالدخول أو الدفع أو أحد الدروس، احكِ معنا مباشرة على واتساب.</div>
+    <div class="chat-actions"><a href="https://wa.me/447473947323" target="_blank" rel="noopener">فتح واتساب</a><button type="button" onclick="closeChat()">إغلاق</button></div>
   </div>
 </div>
 
@@ -253,6 +295,9 @@ async function init() {
   const content = document.getElementById('content');
   const name = userData?.full_name || 'عضو';
   window.__academyName = name;
+  document.getElementById('profileName').value = userData?.full_name || user.user_metadata?.full_name || '';
+  const { data: profilePhone } = await sb.from('users').select('whatsapp_number').eq('id', user.id).single();
+  document.getElementById('profilePhone').value = profilePhone?.whatsapp_number || '';
 
   if (!membership || membership.status === 'pending') {
     content.innerHTML = `
@@ -271,7 +316,7 @@ async function init() {
         <div class="status-icon">🔴</div>
         <div class="status-title">انتهى اشتراكك</div>
         <div class="status-msg">مرحباً ${escapeHTML(name)}!<br>انتهت مدة اشتراكك. جدد الاشتراك بـ5$ لمتابعة التعلم.</div>
-        <a href="https://wa.me/${WHATSAPP}?text=بدي أجدد اشتراكي في AI Academy" class="wa-btn">💳 جدد الاشتراك</a>
+        <a href="https://wa.me/${WHATSAPP}?text=بدي أجدد اشتراكي في AIVideoSyria" class="wa-btn">💳 جدد الاشتراك</a>
       </div>`;
     return;
   }
@@ -288,6 +333,23 @@ async function init() {
   }
   allLessons = lessons || [];
   renderStages(daysSinceStart);
+}
+
+async function saveProfile() {
+  if (!currentUser) return;
+  const name = document.getElementById('profileName').value.trim();
+  const phone = document.getElementById('profilePhone').value.trim();
+  const btn = document.getElementById('profileSaveBtn');
+  const msg = document.getElementById('profileMsg');
+  if (!name || !phone) { msg.textContent = 'يرجى تعبئة الاسم ورقم الواتساب'; msg.style.color = '#f87171'; msg.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'جاري الحفظ...';
+  const { error } = await sb.from('users').update({ full_name: name, whatsapp_number: phone }).eq('id', currentUser.id);
+  if (!error) {
+    await sb.auth.updateUser({ data: { full_name: name } });
+    window.__academyName = name;
+    msg.textContent = 'تم حفظ بياناتك ✓'; msg.style.color = '#4ade80'; msg.style.display = 'block';
+  } else { msg.textContent = 'تعذر الحفظ، حاول مرة أخرى'; msg.style.color = '#f87171'; msg.style.display = 'block'; }
+  btn.disabled = false; btn.textContent = 'حفظ التعديلات';
 }
 
 function openStage(stageNum) {
@@ -354,6 +416,7 @@ function openLesson(index) {
   currentLesson = { lesson, index, stageNum: currentStage.num };
   document.getElementById('modalTitle').textContent = lesson.title || `الدرس ${index+1}`;
   document.getElementById('videoFrame').src = lesson.video_url;
+  document.getElementById('videoWatermark').textContent = `AIVideoSyria · ${window.__academyName || 'عضو'}`;
   document.getElementById('modalDesc').textContent = lesson.description || '';
   const btn = document.getElementById('completeBtn');
   btn.textContent = isCompleted(lesson) ? '✅ تم إنهاء الدرس — يمكنك متابعة الدرس التالي' : '✅ أنهيت الدرس — افتح الدرس التالي';
@@ -373,6 +436,33 @@ function closeModal() {
   document.getElementById('videoFrame').src = '';
   currentLesson = null;
 }
+
+function goToLessons() {
+  document.getElementById('content').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function goToAccount() {
+  document.querySelector('.account-card').scrollIntoView({ behavior:'smooth', block:'center' });
+  document.getElementById('profileName').focus();
+}
+
+function openChat() {
+  document.getElementById('chatModal').classList.add('open');
+}
+
+function closeChat() {
+  document.getElementById('chatModal').classList.remove('open');
+}
+
+document.addEventListener('contextmenu', function (event) {
+  if (event.target.closest('#videoModal')) event.preventDefault();
+});
+
+document.addEventListener('keydown', function (event) {
+  if ((event.ctrlKey || event.metaKey) && ['s','u','p'].includes(event.key.toLowerCase())) {
+    event.preventDefault();
+  }
+});
 
 async function doLogout() {
   await sb.auth.signOut();
