@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'ai-academy-v1';
+const CACHE_VERSION = 'aivideosyria-v2';
 
 self.addEventListener('install', function (event) {
   self.skipWaiting();
