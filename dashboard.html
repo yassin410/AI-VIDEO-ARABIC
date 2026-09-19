@@ -2,484 +2,72 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#f97316">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <title>لوحة الطالب — AIVideoSyria</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Cairo',sans-serif; background:#0a0e1a; color:#fff; direction:rtl; min-height:100vh; padding-bottom:82px; }
-nav { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid #1e2a3a; position:sticky; top:0; background:#0a0e1a; z-index:10; }
-.logo { font-size:17px; font-weight:900; color:#f97316; }
-.logout-btn { background:transparent; border:1px solid #1e2a3a; color:#94a3b8; padding:7px 14px; border-radius:8px; font-family:'Cairo',sans-serif; font-size:13px; cursor:pointer; }
-.container { padding:24px 20px; max-width:600px; margin:0 auto; }
-.account-card { background:#111827; border:1px solid #1e2a3a; border-radius:16px; padding:18px; margin-top:18px; }
-.account-title { font-size:16px; font-weight:900; margin-bottom:12px; }
-.account-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.account-card label { display:block; color:#94a3b8; font-size:12px; margin-bottom:5px; }
-.account-card input { width:100%; background:#0a0e1a; color:#fff; border:1px solid #1e2a3a; border-radius:9px; padding:10px; font-family:'Cairo',sans-serif; outline:none; }
-.account-card input:focus { border-color:#f97316; }
-.account-save { width:100%; margin-top:12px; background:#f97316; color:#fff; border:0; border-radius:9px; padding:11px; font-family:'Cairo',sans-serif; font-weight:700; cursor:pointer; }
-.account-msg { display:none; text-align:center; font-size:12px; margin-top:9px; color:#4ade80; }
-
-/* حالة pending */
-.status-card { border-radius:16px; padding:24px 20px; text-align:center; margin-bottom:20px; }
-.status-pending { background:rgba(249,115,22,0.08); border:1px solid rgba(249,115,22,0.2); }
-.status-expired { background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); }
-.status-icon { font-size:40px; margin-bottom:12px; }
-.status-title { font-size:18px; font-weight:700; margin-bottom:8px; }
-.status-msg { font-size:13px; color:#94a3b8; line-height:1.7; margin-bottom:16px; }
-.wa-btn { display:inline-flex; align-items:center; gap:8px; background:#25d366; color:#fff; text-decoration:none; padding:12px 24px; border-radius:10px; font-weight:700; font-size:14px; }
-
-/* لوحة المستخدم النشط */
-.welcome-box { background:#111827; border:1px solid #1e2a3a; border-radius:16px; padding:20px; margin-bottom:20px; }
-.welcome-name { font-size:20px; font-weight:900; margin-bottom:4px; }
-.welcome-exp { font-size:13px; color:#64748b; }
-.exp-date { color:#f97316; font-weight:700; }
-
-.stages-title { font-size:16px; font-weight:700; margin-bottom:14px; color:#94a3b8; }
-
-/* كروت المراحل */
-.stage-card { background:#111827; border:1px solid #1e2a3a; border-radius:12px; padding:16px; margin-bottom:10px; display:flex; align-items:center; gap:14px; cursor:pointer; transition:border 0.2s; }
-.stage-card.unlocked:hover { border-color:#f97316; }
-.stage-card.locked { opacity:0.5; cursor:not-allowed; }
-.stage-num { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:16px; flex-shrink:0; }
-.unlocked .stage-num { background:rgba(249,115,22,0.15); color:#f97316; }
-.locked .stage-num { background:#1e2a3a; color:#374151; }
-.stage-info { flex:1; }
-.stage-info h3 { font-size:14px; font-weight:700; margin-bottom:3px; }
-.stage-info p { font-size:11px; color:#64748b; }
-.stage-badge { font-size:18px; }
-
-/* مودال الدرس */
-.modal { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); z-index:100; padding:20px; align-items:center; justify-content:center; }
-.modal.open { display:flex; }
-.modal-box { background:#111827; border:1px solid #1e2a3a; border-radius:16px; width:100%; max-width:500px; overflow:hidden; }
-.modal-header { padding:16px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e2a3a; }
-.modal-title { font-size:16px; font-weight:700; }
-.close-btn { background:transparent; border:none; color:#94a3b8; font-size:22px; cursor:pointer; }
-.video-wrap { position:relative; padding-bottom:56.25%; background:#000; }
-.video-wrap iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; }
-.video-watermark { position:absolute; inset:0; z-index:4; pointer-events:none; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.46); font-size:13px; font-weight:700; letter-spacing:.3px; transform:rotate(-18deg); text-shadow:0 1px 2px #000; }
-.modal-desc { padding:16px 20px; font-size:13px; color:#94a3b8; line-height:1.7; }
-
-/* loading */
-.loading { text-align:center; padding:40px; color:#64748b; }
-
-/* صفحة الدروس */
-.stage-progress { margin-top:8px; height:5px; background:#1e2a3a; border-radius:99px; overflow:hidden; }
-.stage-progress-bar { height:100%; background:#f97316; border-radius:99px; transition:width .25s; }
-.lesson-count { font-size:11px; color:#64748b; margin-top:3px; }
-.lesson-list { display:flex; flex-direction:column; gap:10px; }
-.stage-page-head { background:#111827; border:1px solid #1e2a3a; border-radius:16px; padding:18px; margin-bottom:14px; }
-.back-btn { background:transparent; border:1px solid #1e2a3a; color:#cbd5e1; padding:9px 12px; border-radius:9px; font-family:'Cairo',sans-serif; cursor:pointer; margin-bottom:14px; }
-.stage-page-title { font-size:20px; font-weight:900; margin-bottom:4px; }
-.stage-page-desc { color:#64748b; font-size:12px; line-height:1.7; }
-.lesson-card { background:#111827; border:1px solid #1e2a3a; border-radius:14px; padding:15px; display:flex; align-items:center; gap:12px; }
-.lesson-card.open { cursor:pointer; }
-.lesson-card.open:hover { border-color:#f97316; }
-.lesson-card.locked { opacity:.55; cursor:not-allowed; }
-.lesson-number { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(249,115,22,.12); color:#f97316; font-weight:900; }
-.lesson-card.locked .lesson-number { background:#1e2a3a; color:#64748b; }
-.lesson-main { flex:1; min-width:0; }
-.lesson-main h3 { font-size:14px; margin-bottom:3px; }
-.lesson-main p { font-size:11px; color:#64748b; line-height:1.6; }
-.lesson-status { font-size:18px; }
-.complete-btn { width:100%; margin-top:14px; padding:12px; border:0; border-radius:10px; background:#f97316; color:#fff; font-family:'Cairo',sans-serif; font-weight:700; cursor:pointer; }
-.complete-btn:disabled { opacity:.55; cursor:not-allowed; }
-.next-note { text-align:center; color:#64748b; font-size:11px; margin-top:8px; }
-.empty-stage { background:#111827; border:1px dashed #263247; border-radius:14px; padding:30px 18px; text-align:center; color:#64748b; font-size:13px; }
-.app-bottom-nav { position:fixed; top:auto; right:0; left:0; bottom:0; z-index:90; display:flex; justify-content:center; gap:4px; padding:8px 12px calc(8px + env(safe-area-inset-bottom)); background:rgba(10,14,26,.97); border-top:1px solid #1e2a3a; backdrop-filter:blur(12px); }
-.app-bottom-nav button { flex:1; max-width:190px; border:0; background:transparent; color:#64748b; padding:7px 8px; border-radius:10px; font:600 11px Cairo; cursor:pointer; }
-.app-bottom-nav button:hover, .app-bottom-nav button:focus { color:#f97316; background:rgba(249,115,22,.09); outline:none; }
-.nav-icon { display:block; font-size:19px; line-height:1.2; margin-bottom:2px; }
-.chat-modal-text { color:#94a3b8; font-size:13px; line-height:1.8; padding:18px 20px 0; text-align:center; }
-.chat-actions { display:flex; gap:8px; padding:18px 20px 20px; }
-.chat-actions a, .chat-actions button { flex:1; border:0; border-radius:10px; padding:11px 8px; font:700 12px Cairo; text-align:center; text-decoration:none; cursor:pointer; }
-.chat-actions a { background:#25d366; color:#fff; }
-.chat-actions button { background:#1e293b; color:#cbd5e1; }
-
+:root{--bg:#0a0e1a;--card:#111827;--line:#1e2a3a;--muted:#94a3b8;--soft:#64748b;--brand:#f97316;--green:#22c55e}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Cairo',sans-serif;background:var(--bg);color:#fff;direction:rtl;min-height:100vh;padding-bottom:86px}button,input{font-family:inherit}button{touch-action:manipulation}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(10,14,26,.96);backdrop-filter:blur(14px);z-index:20}.logo{font-size:17px;font-weight:900;color:var(--brand)}.logout-btn{background:transparent;border:1px solid var(--line);color:var(--muted);padding:7px 14px;border-radius:9px;font-size:13px;cursor:pointer}.container{padding:20px 16px;max-width:720px;margin:0 auto}.app-view{display:none;animation:viewIn .18s ease}.app-view.active{display:block}@keyframes viewIn{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}.loading{text-align:center;padding:48px 10px;color:var(--soft)}
+.section-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:14px}.section-title{font-size:20px;font-weight:900}.section-sub{font-size:11px;color:var(--soft);margin-top:3px}.welcome-box{background:linear-gradient(135deg,#151e2f,#101724);border:1px solid var(--line);border-radius:18px;padding:19px;margin-bottom:18px;position:relative;overflow:hidden}.welcome-box:after{content:'';position:absolute;width:130px;height:130px;border-radius:50%;background:rgba(249,115,22,.12);left:-45px;top:-60px;filter:blur(4px)}.welcome-name{font-size:19px;font-weight:900;margin-bottom:4px;position:relative;z-index:1}.welcome-exp{font-size:12px;color:var(--muted);position:relative;z-index:1}.exp-date{color:var(--brand);font-weight:700}
+.stage-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.stage-card{position:relative;min-height:166px;background:var(--card);border:1px solid var(--line);border-radius:17px;padding:15px;display:flex;flex-direction:column;text-align:right;color:#fff;overflow:hidden;transition:transform .15s,border-color .15s}.stage-card.unlocked:active{transform:scale(.98)}button.stage-card{cursor:pointer;width:100%}.stage-card.unlocked:hover{border-color:rgba(249,115,22,.65)}.stage-card.locked{opacity:.48;cursor:not-allowed}.stage-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.stage-num{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:rgba(249,115,22,.13);color:var(--brand);font-size:14px;font-weight:900}.stage-icon{font-size:20px}.stage-card h3{font-size:13px;line-height:1.55;margin-bottom:5px;min-height:41px}.stage-card p{font-size:10px;line-height:1.55;color:var(--soft);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.lesson-count{font-size:10px;color:var(--muted);margin-top:auto;padding-top:12px}.stage-progress{height:4px;background:#202b3d;border-radius:99px;overflow:hidden;margin-top:6px}.stage-progress-bar{height:100%;background:linear-gradient(90deg,var(--brand),#fb923c);border-radius:99px}.lock-note{font-size:10px;color:var(--muted);margin-top:auto;padding-top:12px}
+.status-card{border-radius:17px;padding:25px 20px;text-align:center;margin-bottom:18px}.status-pending{background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.22)}.status-expired{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.22)}.status-icon{font-size:38px;margin-bottom:10px}.status-title{font-size:18px;font-weight:800;margin-bottom:7px}.status-msg{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:16px}.wa-btn{display:inline-flex;background:#25d366;color:#fff;text-decoration:none;padding:11px 22px;border-radius:10px;font-weight:700;font-size:13px}
+.account-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:19px}.account-avatar{width:58px;height:58px;border-radius:18px;background:rgba(249,115,22,.13);color:var(--brand);display:grid;place-items:center;font-size:25px;margin-bottom:14px}.account-title{font-size:20px;font-weight:900}.account-email{color:var(--soft);font-size:12px;margin:3px 0 20px;direction:ltr;text-align:right}.account-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.field input{width:100%;background:var(--bg);color:#fff;border:1px solid var(--line);border-radius:11px;padding:12px;outline:0}.field input:focus{border-color:var(--brand)}.account-save,.secondary-btn{width:100%;margin-top:13px;border:0;border-radius:11px;padding:12px;font-weight:800;cursor:pointer}.account-save{background:var(--brand);color:#fff}.secondary-btn{background:#1e293b;color:#dbe4f0}.account-save:disabled,.secondary-btn:disabled{opacity:.55;cursor:wait}.account-msg{display:none;text-align:center;font-size:12px;line-height:1.65;margin-top:10px}
+.community-card{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;min-height:calc(100vh - 190px);display:flex;flex-direction:column}.community-head{padding:16px 17px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:11px}.online-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px rgba(34,197,94,.1)}.community-title{font-size:15px;font-weight:900}.community-sub{font-size:10px;color:var(--soft)}.messages{flex:1;min-height:330px;max-height:calc(100vh - 330px);overflow-y:auto;padding:15px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}.message-row{display:flex;flex-direction:column;align-items:flex-start}.message-row.mine{align-items:flex-end}.message-meta{font-size:9px;color:var(--soft);margin:0 7px 3px}.message-bubble{max-width:86%;background:#1a2435;border:1px solid #27344a;border-radius:14px 14px 14px 4px;padding:9px 12px;font-size:12px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}.mine .message-bubble{background:rgba(249,115,22,.14);border-color:rgba(249,115,22,.3);border-radius:14px 14px 4px 14px}.chat-empty{text-align:center;color:var(--soft);font-size:12px;margin:auto;padding:35px 15px;line-height:1.8}.chat-form{border-top:1px solid var(--line);padding:10px;display:flex;gap:8px;background:#0f1625}.chat-input{flex:1;min-width:0;background:var(--bg);color:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 12px;outline:0}.chat-input:focus{border-color:var(--brand)}.send-btn{width:46px;border:0;border-radius:12px;background:var(--brand);color:#fff;font-size:18px;cursor:pointer}.send-btn:disabled{opacity:.5}.chat-setup{padding:25px;text-align:center;color:var(--muted);font-size:12px;line-height:1.8}.chat-setup a{color:#fff;background:#25d366;padding:9px 14px;border-radius:9px;text-decoration:none;display:inline-block;margin-top:10px}
+.app-bottom-nav{position:fixed;right:0;left:0;bottom:0;z-index:90;display:flex;justify-content:center;gap:5px;padding:8px 11px calc(8px + env(safe-area-inset-bottom));background:rgba(10,14,26,.97);border-top:1px solid var(--line);backdrop-filter:blur(14px)}.app-bottom-nav button{flex:1;max-width:220px;border:0;background:transparent;color:var(--soft);padding:7px;border-radius:11px;font:600 11px Cairo;cursor:pointer}.app-bottom-nav button.active{color:var(--brand);background:rgba(249,115,22,.1)}.nav-icon{display:block;font-size:19px;line-height:1.2;margin-bottom:2px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:100;padding:14px;align-items:center;justify-content:center}.modal.open{display:flex}.modal-box{background:var(--card);border:1px solid var(--line);border-radius:18px;width:100%;max-width:560px;max-height:92vh;overflow:auto}.modal-header{padding:15px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card);z-index:3}.modal-title{font-size:15px;font-weight:800}.close-btn{background:transparent;border:0;color:var(--muted);font-size:23px;cursor:pointer}.stage-page-head{background:#151e2e;border:1px solid var(--line);border-radius:15px;padding:17px;margin-bottom:13px}.back-btn{background:transparent;border:1px solid var(--line);color:#cbd5e1;padding:8px 11px;border-radius:9px;cursor:pointer;margin-bottom:13px}.stage-page-title{font-size:19px;font-weight:900}.stage-page-desc{color:var(--soft);font-size:11px;margin-top:3px;line-height:1.7}.lesson-list{display:flex;flex-direction:column;gap:9px}.lesson-card{background:#151d2c;border:1px solid var(--line);border-radius:13px;padding:13px;display:flex;align-items:center;gap:11px}.lesson-card.open{cursor:pointer}.lesson-card.open:hover{border-color:var(--brand)}.lesson-card.locked{opacity:.5;cursor:not-allowed}.lesson-number{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;flex-shrink:0;background:rgba(249,115,22,.12);color:var(--brand);font-weight:900}.lesson-main{flex:1;min-width:0}.lesson-main h3{font-size:13px;margin-bottom:3px}.lesson-main p{font-size:10px;color:var(--soft);line-height:1.55}.lesson-status{font-size:17px}.empty-stage{background:var(--card);border:1px dashed #263247;border-radius:14px;padding:28px 16px;text-align:center;color:var(--soft);font-size:12px;line-height:1.8}
+.video-wrap{position:relative;padding-bottom:56.25%;background:#000}.video-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.video-watermark{position:absolute;inset:0;z-index:4;pointer-events:none;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.15);font-size:11px;font-weight:700;letter-spacing:.2px;transform:rotate(-17deg);user-select:none}.modal-desc{padding:15px 18px;font-size:12px;color:var(--muted);line-height:1.7}.complete-wrap{padding:0 18px 18px}.complete-btn{width:100%;padding:12px;border:0;border-radius:10px;background:var(--brand);color:#fff;font-weight:800;cursor:pointer}.next-note{text-align:center;color:var(--soft);font-size:10px;margin-top:7px}
+@media(max-width:390px){.container{padding:17px 12px}.stage-grid{gap:8px}.stage-card{min-height:158px;padding:13px}.stage-card h3{font-size:12px}.account-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<nav>
-  <div class="logo">🎬 AIVideoSyria</div>
-  <button class="logout-btn" onclick="doLogout()">خروج</button>
-</nav>
-
-<div class="container">
-  <div id="content" class="loading">⏳ جاري التحميل...</div>
-  <div class="account-card">
-    <div class="account-title">⚙️ بيانات الحساب</div>
-    <div class="account-grid">
-      <div><label for="profileName">الاسم</label><input id="profileName" type="text" placeholder="اسمك الكامل"></div>
-      <div><label for="profilePhone">رقم الواتساب</label><input id="profilePhone" type="tel" placeholder="09XXXXXXXX"></div>
-    </div>
-    <button class="account-save" id="profileSaveBtn" onclick="saveProfile()">حفظ التعديلات</button>
-    <div class="account-msg" id="profileMsg"></div>
-  </div>
-</div>
-
-<nav class="app-bottom-nav" aria-label="تنقل التطبيق">
-  <button type="button" onclick="goToLessons()"><span class="nav-icon">📚</span>الدروس</button>
-  <button type="button" onclick="goToAccount()"><span class="nav-icon">👤</span>حسابي</button>
-  <button type="button" onclick="openChat()"><span class="nav-icon">💬</span>الدردشة</button>
-</nav>
-
-<!-- صفحة دروس المرحلة -->
-<div class="modal" id="stageModal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <span class="modal-title">دروس المرحلة</span>
-      <button class="close-btn" onclick="closeStage()">✕</button>
-    </div>
-    <div id="stageContent" style="padding:16px 20px 20px;"></div>
-  </div>
-</div>
-
-<!-- مودال الفيديو -->
-<div class="modal" id="videoModal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <span class="modal-title" id="modalTitle"></span>
-      <button class="close-btn" onclick="closeModal()">✕</button>
-    </div>
-    <div class="video-wrap">
-      <iframe id="videoFrame" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
-      <div class="video-watermark" id="videoWatermark" aria-hidden="true"></div>
-    </div>
-    <div class="modal-desc" id="modalDesc"></div>
-    <div style="padding:0 20px 20px;">
-      <button class="complete-btn" id="completeBtn" onclick="completeCurrentLesson()">✅ أنهيت الدرس — افتح الدرس التالي</button>
-      <div class="next-note">اضغط الزر بعد مشاهدة الدرس بالكامل لفتح الدرس التالي.</div>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="chatModal">
-  <div class="modal-box">
-    <div class="modal-header"><span class="modal-title">💬 الدردشة والدعم</span><button class="close-btn" onclick="closeChat()">✕</button></div>
-    <div class="chat-modal-text">إذا واجهتك مشكلة بالدخول أو الدفع أو أحد الدروس، احكِ معنا مباشرة على واتساب.</div>
-    <div class="chat-actions"><a href="https://wa.me/447473947323" target="_blank" rel="noopener">فتح واتساب</a><button type="button" onclick="closeChat()">إغلاق</button></div>
-  </div>
-</div>
-
+<header class="topbar"><div class="logo">🎬 AIVideoSyria</div><button class="logout-btn" onclick="doLogout()">خروج</button></header>
+<main class="container">
+ <section id="lessonsView" class="app-view active"><div id="content" class="loading">⏳ جاري التحميل...</div></section>
+ <section id="accountView" class="app-view"><div class="section-head"><div><div class="section-title">حسابي</div><div class="section-sub">إدارة بياناتك وأمان حسابك</div></div></div><div class="account-card"><div class="account-avatar">👤</div><div class="account-title" id="accountDisplayName">عضو AIVideoSyria</div><div class="account-email" id="accountEmail"></div><div class="account-grid"><div class="field"><label for="profileName">الاسم</label><input id="profileName" type="text" maxlength="80" autocomplete="name" placeholder="اسمك الكامل"></div><div class="field"><label for="profilePhone">رقم الواتساب</label><input id="profilePhone" type="tel" maxlength="24" inputmode="tel" placeholder="09XXXXXXXX"></div></div><button class="account-save" id="profileSaveBtn" onclick="saveProfile()">حفظ التعديلات</button><button class="secondary-btn" id="passwordResetBtn" onclick="sendPasswordReset()">إرسال رابط تغيير كلمة المرور</button><div class="account-msg" id="profileMsg" role="status"></div></div></section>
+ <section id="communityView" class="app-view"><div class="section-head"><div><div class="section-title">مجتمع الأعضاء</div><div class="section-sub">اسأل، شارك تطبيقك، وخذ رأي المجتمع</div></div></div><div class="community-card"><div class="community-head"><span class="online-dot"></span><div><div class="community-title">دردشة AIVideoSyria</div><div class="community-sub">متاحة للأعضاء المسجلين فقط</div></div></div><div id="messages" class="messages"><div class="chat-empty">⏳ جاري تحميل الرسائل...</div></div><form id="chatForm" class="chat-form" onsubmit="sendMessage(event)"><input id="chatInput" class="chat-input" maxlength="500" autocomplete="off" placeholder="اكتب رسالتك هنا..."><button id="sendBtn" class="send-btn" type="submit" aria-label="إرسال">➤</button></form></div></section>
+</main>
+<nav class="app-bottom-nav" aria-label="تنقل التطبيق"><button id="navLessons" class="active" type="button" onclick="showView('lessons')"><span class="nav-icon">📚</span>الدروس</button><button id="navAccount" type="button" onclick="showView('account')"><span class="nav-icon">👤</span>حسابي</button><button id="navCommunity" type="button" onclick="showView('community')"><span class="nav-icon">💬</span>المجتمع</button></nav>
+<div class="modal" id="stageModal"><div class="modal-box"><div class="modal-header"><span class="modal-title">دروس المرحلة</span><button class="close-btn" onclick="closeStage()">✕</button></div><div id="stageContent" style="padding:15px 17px 18px"></div></div></div>
+<div class="modal" id="videoModal"><div class="modal-box"><div class="modal-header"><span class="modal-title" id="modalTitle"></span><button class="close-btn" onclick="closeModal()">✕</button></div><div class="video-wrap"><iframe id="videoFrame" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe><div class="video-watermark" id="videoWatermark" aria-hidden="true"></div></div><div class="modal-desc" id="modalDesc"></div><div class="complete-wrap"><button class="complete-btn" id="completeBtn" onclick="completeCurrentLesson()">✅ أنهيت الدرس — افتح الدرس التالي</button><div class="next-note">اضغط بعد مشاهدة الدرس لفتح الدرس التالي.</div></div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = 'https://xcbhyjgvwhnaygnpnegt.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjYmh5amd2d2huYXlnbnBuZWd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0MDkxODAsImV4cCI6MjEwMzk4NTE4MH0.fPh9QGniWAyg_Jg5uO0zpDoA03nvNbHHNXH9qocbmpM';
-const WHATSAPP = '447473947323';
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-const STAGES = [
-  { num:1, title:'مقدمة وأساسيات الذكاء الاصطناعي', desc:'فهم الأدوات والمصطلحات الأساسية' },
-  { num:2, title:'توليد الصور بالذكاء الاصطناعي', desc:'إنشاء صور احترافية من النص' },
-  { num:3, title:'توليد الفيديوهات', desc:'تحويل الصور والأفكار لفيديوهات مذهلة' },
-  { num:4, title:'الصوت والمونتاج', desc:'إضافة الصوت والمؤثرات وتحرير الفيديو' },
-  { num:5, title:'ثبات الشخصية', desc:'شخصية AI متسقة في كل الفيديوهات' },
-  { num:6, title:'صناعة الإعلانات', desc:'إعلانات تجارية احترافية بدون تصوير' },
-  { num:7, title:'محتوى السوشيال ميديا', desc:'ريلز وتيك توك وفيسبوك بالذكاء الاصطناعي' },
-  { num:8, title:'صناعة الأفلام القصيرة', desc:'قصص وأفلام كاملة من الهاتف' },
-  { num:9, title:'الأتمتة وتوليد المحتوى التلقائي', desc:'نظام ينتج المحتوى لوحده' },
-];
-
-let currentUser = null;
-let allLessons = [];
-let currentStage = null;
-let currentLesson = null;
-let progress = {};
-
-function escapeHTML(value) {
-  return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-}
-
-function progressKey(userId) {
-  return `ai_academy_progress_${userId}`;
-}
-
-function loadProgress() {
-  try {
-    progress = JSON.parse(localStorage.getItem(progressKey(currentUser.id)) || '{}') || {};
-  } catch(e) { progress = {}; }
-}
-
-function saveProgress() {
-  localStorage.setItem(progressKey(currentUser.id), JSON.stringify(progress));
-}
-
-function lessonId(lesson) {
-  return String(lesson.id);
-}
-
-function isCompleted(lesson) {
-  return !!progress[lessonId(lesson)];
-}
-
-function getStageLessons(stageNum) {
-  return allLessons
-    .filter(l => Number(l.display_order) === Number(stageNum))
-    .sort((a,b) => {
-      const ad = a.created_at ? new Date(a.created_at).getTime() : 0;
-      const bd = b.created_at ? new Date(b.created_at).getTime() : 0;
-      if (ad !== bd) return ad - bd;
-      return String(a.id).localeCompare(String(b.id));
-    });
-}
-
-function stageUnlockDays(stageLessons, stageNum) {
-  const values = stageLessons.map(l => Number(l.unlock_after_days) || 0);
-  return values.length ? Math.min(...values) : (stageNum - 1) * 7;
-}
-
-function stageIsUnlocked(stageNum, daysSinceStart) {
-  const lessons = getStageLessons(stageNum);
-  return daysSinceStart >= stageUnlockDays(lessons, stageNum);
-}
-
-function renderStages(daysSinceStart) {
-  const content = document.getElementById('content');
-  const stagesHTML = STAGES.map(stage => {
-    const lessons = getStageLessons(stage.num);
-    const unlocked = stageIsUnlocked(stage.num, daysSinceStart);
-    const completed = lessons.filter(isCompleted).length;
-    const total = lessons.length;
-    const pct = total ? Math.round((completed / total) * 100) : 0;
-
-    if (unlocked) {
-      return `<div class="stage-card unlocked" onclick="openStage(${stage.num})">
-        <div class="stage-num">${stage.num}</div>
-        <div class="stage-info">
-          <h3>${escapeHTML(stage.title)}</h3>
-          <p>${escapeHTML(stage.desc)}</p>
-          <div class="lesson-count">${total ? `${completed} / ${total} درس مكتمل` : 'لم تتم إضافة دروس بعد'}</div>
-          ${total ? `<div class="stage-progress"><div class="stage-progress-bar" style="width:${pct}%"></div></div>` : ''}
-        </div>
-        <div class="stage-badge">📚</div>
-      </div>`;
-    }
-
-    const daysLeft = Math.max(0, stageUnlockDays(lessons, stage.num) - daysSinceStart);
-    return `<div class="stage-card locked">
-      <div class="stage-num">🔒</div>
-      <div class="stage-info">
-        <h3>${escapeHTML(stage.title)}</h3>
-        <p>تنفتح خلال ${daysLeft} يوم</p>
-      </div>
-      <div class="stage-badge">🔒</div>
-    </div>`;
-  }).join('');
-
-  content.innerHTML = `
-    <div class="welcome-box">
-      <div class="welcome-name">أهلاً بك ${escapeHTML(window.__academyName || 'عضو')} 👋</div>
-      <div class="welcome-exp">اشتراكك فعال حتى: <span class="exp-date">${escapeHTML(window.__academyEndDate || '')}</span></div>
-    </div>
-    <div class="stages-title">📚 مراحلك التعليمية</div>
-    ${stagesHTML}`;
-}
-
-async function init() {
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) { window.location.href = 'login.html'; return; }
-  currentUser = user;
-  loadProgress();
-
-  const { data: userData } = await sb.from('users').select('full_name, role').eq('id', user.id).single();
-  if (userData?.role === 'admin') { window.location.href = 'admin.html'; return; }
-
-  const { data: membership } = await sb.from('memberships').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).single();
-
-  const content = document.getElementById('content');
-  const name = userData?.full_name || 'عضو';
-  window.__academyName = name;
-  document.getElementById('profileName').value = userData?.full_name || user.user_metadata?.full_name || '';
-  const { data: profilePhone } = await sb.from('users').select('whatsapp_number').eq('id', user.id).single();
-  document.getElementById('profilePhone').value = profilePhone?.whatsapp_number || '';
-
-  if (!membership || membership.status === 'pending') {
-    content.innerHTML = `
-      <div class="status-card status-pending">
-        <div class="status-icon">⏳</div>
-        <div class="status-title">حسابك قيد المراجعة</div>
-        <div class="status-msg">مرحباً ${escapeHTML(name)}!<br>سيتم تفعيل حسابك خلال ساعات بعد تأكيد الدفع.<br>إذا أرسلت الإيصال، انتظر قليلاً أو تواصل معنا.</div>
-        <a href="https://wa.me/${WHATSAPP}" class="wa-btn">📱 تواصل معنا</a>
-      </div>`;
-    return;
-  }
-
-  if (membership.status === 'expired' || (membership.end_date && new Date(membership.end_date) < new Date())) {
-    content.innerHTML = `
-      <div class="status-card status-expired">
-        <div class="status-icon">🔴</div>
-        <div class="status-title">انتهى اشتراكك</div>
-        <div class="status-msg">مرحباً ${escapeHTML(name)}!<br>انتهت مدة اشتراكك. جدد الاشتراك بـ5$ لمتابعة التعلم.</div>
-        <a href="https://wa.me/${WHATSAPP}?text=بدي أجدد اشتراكي في AIVideoSyria" class="wa-btn">💳 جدد الاشتراك</a>
-      </div>`;
-    return;
-  }
-
-  const startDate = new Date(membership.start_date || membership.created_at);
-  const endDate = new Date(membership.end_date);
-  const daysSinceStart = Math.max(0, Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24)));
-  window.__academyEndDate = endDate.toLocaleDateString('ar-SY');
-
-  const { data: lessons, error } = await sb.from('lessons').select('*').order('display_order');
-  if (error) {
-    content.innerHTML = '<div class="empty-stage">تعذر تحميل الدروس. حاول تحديث الصفحة.</div>';
-    return;
-  }
-  allLessons = lessons || [];
-  renderStages(daysSinceStart);
-}
-
-async function saveProfile() {
-  if (!currentUser) return;
-  const name = document.getElementById('profileName').value.trim();
-  const phone = document.getElementById('profilePhone').value.trim();
-  const btn = document.getElementById('profileSaveBtn');
-  const msg = document.getElementById('profileMsg');
-  if (!name || !phone) { msg.textContent = 'يرجى تعبئة الاسم ورقم الواتساب'; msg.style.color = '#f87171'; msg.style.display = 'block'; return; }
-  btn.disabled = true; btn.textContent = 'جاري الحفظ...';
-  const { error } = await sb.from('users').update({ full_name: name, whatsapp_number: phone }).eq('id', currentUser.id);
-  if (!error) {
-    await sb.auth.updateUser({ data: { full_name: name } });
-    window.__academyName = name;
-    msg.textContent = 'تم حفظ بياناتك ✓'; msg.style.color = '#4ade80'; msg.style.display = 'block';
-  } else { msg.textContent = 'تعذر الحفظ، حاول مرة أخرى'; msg.style.color = '#f87171'; msg.style.display = 'block'; }
-  btn.disabled = false; btn.textContent = 'حفظ التعديلات';
-}
-
-function openStage(stageNum) {
-  currentStage = STAGES.find(s => s.num === Number(stageNum));
-  const lessons = getStageLessons(stageNum);
-  const completedCount = lessons.filter(isCompleted).length;
-
-  if (!lessons.length) {
-    document.getElementById('stageContent').innerHTML = `
-      <div class="stage-page-head">
-        <button class="back-btn" onclick="closeStage()">← العودة إلى المراحل</button>
-        <div class="stage-page-title">المرحلة ${stageNum}</div>
-        <div class="stage-page-desc">${escapeHTML(currentStage?.title || '')}</div>
-      </div>
-      <div class="empty-stage">لم تتم إضافة دروس لهذه المرحلة بعد.<br>ستظهر هنا تلقائيًا عند إضافتها من لوحة الإدارة.</div>`;
-    document.getElementById('stageModal').classList.add('open');
-    return;
-  }
-
-  const lessonsHTML = lessons.map((lesson, i) => {
-    const completed = isCompleted(lesson);
-    const previousDone = i === 0 || isCompleted(lessons[i - 1]);
-    const unlocked = previousDone;
-    const status = completed ? '✅' : (unlocked ? '▶️' : '🔒');
-    const stateClass = unlocked ? 'open' : 'locked';
-    return `<div class="lesson-card ${stateClass}" ${unlocked ? `onclick="openLesson(${i})"` : ''}>
-      <div class="lesson-number">${String(i+1).padStart(2,'0')}</div>
-      <div class="lesson-main">
-        <h3>${escapeHTML(lesson.title || `الدرس ${i+1}`)}</h3>
-        <p>${escapeHTML(lesson.description || 'درس تعليمي ضمن هذه المرحلة')}</p>
-      </div>
-      <div class="lesson-status">${status}</div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('stageContent').innerHTML = `
-    <div class="stage-page-head">
-      <button class="back-btn" onclick="closeStage()">← العودة إلى المراحل</button>
-      <div class="stage-page-title">المرحلة ${stageNum}</div>
-      <div class="stage-page-desc">${escapeHTML(currentStage?.title || '')} · ${completedCount} / ${lessons.length} مكتمل</div>
-    </div>
-    <div class="lesson-list">${lessonsHTML}</div>`;
-  document.getElementById('stageModal').classList.add('open');
-}
-
-function closeStage() {
-  document.getElementById('stageModal').classList.remove('open');
-}
-
-function openLesson(index) {
-  const lessons = getStageLessons(currentStage.num);
-  const lesson = lessons[index];
-  if (!lesson) return;
-  const previousDone = index === 0 || isCompleted(lessons[index - 1]);
-  if (!previousDone) {
-    alert('🔒 أكمل الدرس السابق أولاً.');
-    return;
-  }
-  if (!lesson.video_url) {
-    alert('الفيديو سيتوفر قريبًا، تابعنا!');
-    return;
-  }
-
-  currentLesson = { lesson, index, stageNum: currentStage.num };
-  document.getElementById('modalTitle').textContent = lesson.title || `الدرس ${index+1}`;
-  document.getElementById('videoFrame').src = lesson.video_url;
-  document.getElementById('videoWatermark').textContent = `AIVideoSyria · ${window.__academyName || 'عضو'}`;
-  document.getElementById('modalDesc').textContent = lesson.description || '';
-  const btn = document.getElementById('completeBtn');
-  btn.textContent = isCompleted(lesson) ? '✅ تم إنهاء الدرس — يمكنك متابعة الدرس التالي' : '✅ أنهيت الدرس — افتح الدرس التالي';
-  document.getElementById('videoModal').classList.add('open');
-}
-
-function completeCurrentLesson() {
-  if (!currentLesson) return;
-  progress[lessonId(currentLesson.lesson)] = { completedAt: new Date().toISOString() };
-  saveProgress();
-  closeModal();
-  openStage(currentLesson.stageNum);
-}
-
-function closeModal() {
-  document.getElementById('videoModal').classList.remove('open');
-  document.getElementById('videoFrame').src = '';
-  currentLesson = null;
-}
-
-function goToLessons() {
-  document.getElementById('content').scrollIntoView({ behavior:'smooth', block:'start' });
-}
-
-function goToAccount() {
-  document.querySelector('.account-card').scrollIntoView({ behavior:'smooth', block:'center' });
-  document.getElementById('profileName').focus();
-}
-
-function openChat() {
-  document.getElementById('chatModal').classList.add('open');
-}
-
-function closeChat() {
-  document.getElementById('chatModal').classList.remove('open');
-}
-
-document.addEventListener('contextmenu', function (event) {
-  if (event.target.closest('#videoModal')) event.preventDefault();
-});
-
-document.addEventListener('keydown', function (event) {
-  if ((event.ctrlKey || event.metaKey) && ['s','u','p'].includes(event.key.toLowerCase())) {
-    event.preventDefault();
-  }
-});
-
-async function doLogout() {
-  await sb.auth.signOut();
-  window.location.href = 'index.html';
-}
-
-init();
-</script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('./sw.js').catch(function (error) {
-      console.warn('Service Worker registration failed:', error);
-    });
-  });
-}
+const SUPABASE_URL='https://xcbhyjgvwhnaygnpnegt.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjYmh5amd2d2huYXlnbnBuZWd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0MDkxODAsImV4cCI6MjEwMzk4NTE4MH0.fPh9QGniWAyg_Jg5uO0zpDoA03nvNbHHNXH9qocbmpM';
+const WHATSAPP='447473947323';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
+const STAGES=[{num:1,title:'مقدمة وأساسيات الذكاء الاصطناعي',desc:'فهم الأدوات والمصطلحات الأساسية',icon:'🚀'},{num:2,title:'توليد الصور بالذكاء الاصطناعي',desc:'إنشاء صور احترافية من النص',icon:'🎨'},{num:3,title:'توليد الفيديوهات',desc:'تحويل الصور والأفكار لفيديوهات مذهلة',icon:'🎬'},{num:4,title:'الصوت والمونتاج',desc:'إضافة الصوت والمؤثرات وتحرير الفيديو',icon:'🎧'},{num:5,title:'ثبات الشخصية',desc:'شخصية AI متسقة في كل الفيديوهات',icon:'🧑'},{num:6,title:'صناعة الإعلانات',desc:'إعلانات تجارية احترافية بدون تصوير',icon:'📣'},{num:7,title:'محتوى السوشيال ميديا',desc:'ريلز وتيك توك وفيسبوك بالذكاء الاصطناعي',icon:'📱'},{num:8,title:'صناعة الأفلام القصيرة',desc:'قصص وأفلام كاملة من الهاتف',icon:'🎞️'},{num:9,title:'الأتمتة وتوليد المحتوى التلقائي',desc:'نظام ينتج المحتوى لوحده',icon:'⚙️'}];
+let currentUser=null,allLessons=[],currentStage=null,currentLesson=null,progress={},daysSinceStart=0,chatLoaded=false,chatChannel=null;
+function escapeHTML(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function withTimeout(promise,ms=10000){return Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),ms))])}
+function progressKey(){return `ai_academy_progress_${currentUser.id}`}
+function loadProgress(){try{progress=JSON.parse(localStorage.getItem(progressKey())||'{}')||{}}catch(e){progress={}}}
+function saveProgress(){localStorage.setItem(progressKey(),JSON.stringify(progress))}
+function lessonId(lesson){return String(lesson.id)}
+function isCompleted(lesson){return !!progress[lessonId(lesson)]}
+function getStageLessons(stageNum){return allLessons.filter(l=>Number(l.display_order)===Number(stageNum)).sort((a,b)=>{const ad=a.created_at?new Date(a.created_at).getTime():0,bd=b.created_at?new Date(b.created_at).getTime():0;return ad!==bd?ad-bd:String(a.id).localeCompare(String(b.id))})}
+function stageUnlockDays(stageLessons,stageNum){const values=stageLessons.map(l=>Number(l.unlock_after_days)||0);return values.length?Math.min(...values):(stageNum-1)*7}
+function stageIsUnlocked(stageNum){return daysSinceStart>=stageUnlockDays(getStageLessons(stageNum),stageNum)}
+function showView(view){const map={lessons:'lessonsView',account:'accountView',community:'communityView'};Object.values(map).forEach(id=>document.getElementById(id).classList.remove('active'));['Lessons','Account','Community'].forEach(n=>document.getElementById('nav'+n).classList.remove('active'));document.getElementById(map[view]).classList.add('active');document.getElementById('nav'+view.charAt(0).toUpperCase()+view.slice(1)).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});if(view==='community'&&!chatLoaded)loadCommunity()}
+function renderStages(){const cards=STAGES.map(stage=>{const lessons=getStageLessons(stage.num),unlocked=stageIsUnlocked(stage.num),completed=lessons.filter(isCompleted).length,total=lessons.length,pct=total?Math.round(completed/total*100):0;if(unlocked)return `<button class="stage-card unlocked" onclick="openStage(${stage.num})"><div class="stage-top"><span class="stage-num">${String(stage.num).padStart(2,'0')}</span><span class="stage-icon">${stage.icon}</span></div><h3>${escapeHTML(stage.title)}</h3><p>${escapeHTML(stage.desc)}</p><div class="lesson-count">${total?`${completed} من ${total} مكتمل`:'الدروس قيد الإضافة'}</div>${total?`<div class="stage-progress"><div class="stage-progress-bar" style="width:${pct}%"></div></div>`:''}</button>`;const left=Math.max(0,stageUnlockDays(lessons,stage.num)-daysSinceStart);return `<div class="stage-card locked"><div class="stage-top"><span class="stage-num">🔒</span><span class="stage-icon">${stage.icon}</span></div><h3>${escapeHTML(stage.title)}</h3><p>${escapeHTML(stage.desc)}</p><div class="lock-note">تنفتح خلال ${left} يوم</div></div>`}).join('');document.getElementById('content').innerHTML=`<div class="welcome-box"><div class="welcome-name">أهلاً بك ${escapeHTML(window.__academyName||'عضو')} 👋</div><div class="welcome-exp">اشتراكك فعال حتى: <span class="exp-date">${escapeHTML(window.__academyEndDate||'')}</span></div></div><div class="section-head"><div><div class="section-title">مسارك التعليمي</div><div class="section-sub">اختر المرحلة وتابع تقدمك خطوة بخطوة</div></div></div><div class="stage-grid">${cards}</div>`}
+async function init(){try{const {data:{user}}=await withTimeout(sb.auth.getUser(),12000);if(!user){location.href='login.html';return}currentUser=user;loadProgress();const [profileResult,membershipResult]=await Promise.all([withTimeout(sb.from('users').select('full_name,whatsapp_number,role').eq('id',user.id).single(),12000),withTimeout(sb.from('memberships').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(1).single(),12000)]);const userData=profileResult.data||{};if(userData.role==='admin'){location.href='admin.html';return}const name=userData.full_name||user.user_metadata?.full_name||'عضو';window.__academyName=name;document.getElementById('profileName').value=name==='عضو'?'':name;document.getElementById('profilePhone').value=userData.whatsapp_number||user.user_metadata?.whatsapp_number||'';document.getElementById('accountDisplayName').textContent=name;document.getElementById('accountEmail').textContent=user.email||'';const membership=membershipResult.data,content=document.getElementById('content');if(!membership||membership.status==='pending'){content.innerHTML=`<div class="status-card status-pending"><div class="status-icon">⏳</div><div class="status-title">حسابك قيد المراجعة</div><div class="status-msg">مرحباً ${escapeHTML(name)}!<br>سيتم تفعيل حسابك بعد تأكيد الدفع.</div><a href="https://wa.me/${WHATSAPP}" class="wa-btn">📱 تواصل معنا</a></div>`;return}if(membership.status==='expired'||(membership.end_date&&new Date(membership.end_date)<new Date())){content.innerHTML=`<div class="status-card status-expired"><div class="status-icon">🔴</div><div class="status-title">انتهى اشتراكك</div><div class="status-msg">جدد الاشتراك بـ5$ لمتابعة التعلم والمجتمع.</div><a href="https://wa.me/${WHATSAPP}?text=${encodeURIComponent('بدي أجدد اشتراكي في AIVideoSyria')}" class="wa-btn">💳 جدد الاشتراك</a></div>`;return}const startDate=new Date(membership.start_date||membership.created_at),endDate=new Date(membership.end_date);daysSinceStart=Math.max(0,Math.floor((Date.now()-startDate.getTime())/86400000));window.__academyEndDate=Number.isNaN(endDate.getTime())?'غير محدد':endDate.toLocaleDateString('ar-SY');const {data:lessons,error}=await withTimeout(sb.from('lessons').select('*').order('display_order'),12000);if(error)throw error;allLessons=lessons||[];renderStages()}catch(error){document.getElementById('content').innerHTML='<div class="empty-stage">تعذر تحميل البيانات بسبب بطء الاتصال.<br><button class="secondary-btn" onclick="location.reload()">إعادة المحاولة</button></div>'}}
+function profileMessage(text,color){const el=document.getElementById('profileMsg');el.textContent=text;el.style.color=color;el.style.display='block'}
+async function saveProfile(){if(!currentUser)return;const name=document.getElementById('profileName').value.trim(),phone=document.getElementById('profilePhone').value.trim(),btn=document.getElementById('profileSaveBtn');if(!name||!phone){profileMessage('يرجى تعبئة الاسم ورقم الواتساب','#f87171');return}btn.disabled=true;btn.textContent='جاري الحفظ...';try{const results=await withTimeout(Promise.allSettled([sb.from('users').update({full_name:name,whatsapp_number:phone}).eq('id',currentUser.id),sb.auth.updateUser({data:{full_name:name,whatsapp_number:phone}})]),12000);const dbResponse=results[0].status==='fulfilled'?results[0].value:null,authResponse=results[1].status==='fulfilled'?results[1].value:null;if(dbResponse?.error&&authResponse?.error)throw dbResponse.error;window.__academyName=name;document.getElementById('accountDisplayName').textContent=name;profileMessage('تم حفظ بياناتك بنجاح ✓','#4ade80');if(allLessons.length)renderStages()}catch(error){profileMessage(error.message==='timeout'?'الاتصال بطيء. لم نترك الزر معلقاً؛ حاول مرة ثانية.':'تعذر الحفظ. يلزم تفعيل صلاحية تعديل الحساب في Supabase.','#f87171')}finally{btn.disabled=false;btn.textContent='حفظ التعديلات'}}
+async function sendPasswordReset(){const btn=document.getElementById('passwordResetBtn');btn.disabled=true;btn.textContent='جاري إرسال الرابط...';try{const redirectTo=new URL('reset-password.html',location.href).href;const {error}=await withTimeout(sb.auth.resetPasswordForEmail(currentUser.email,{redirectTo}),12000);if(error)throw error;profileMessage('أرسلنا رابطاً جديداً لبريدك. افتحه من نفس المتصفح.','#4ade80')}catch(error){profileMessage('تعذر إرسال الرابط الآن. حاول مرة أخرى.','#f87171')}finally{btn.disabled=false;btn.textContent='إرسال رابط تغيير كلمة المرور'}}
+function openStage(stageNum){currentStage=STAGES.find(s=>s.num===Number(stageNum));const lessons=getStageLessons(stageNum),completedCount=lessons.filter(isCompleted).length;if(!lessons.length){document.getElementById('stageContent').innerHTML=`<div class="stage-page-head"><button class="back-btn" onclick="closeStage()">← العودة للمراحل</button><div class="stage-page-title">المرحلة ${stageNum}</div><div class="stage-page-desc">${escapeHTML(currentStage?.title||'')}</div></div><div class="empty-stage">لم تتم إضافة دروس لهذه المرحلة بعد.</div>`;document.getElementById('stageModal').classList.add('open');return}const html=lessons.map((lesson,i)=>{const completed=isCompleted(lesson),unlocked=i===0||isCompleted(lessons[i-1]),status=completed?'✅':unlocked?'▶️':'🔒';return `<div class="lesson-card ${unlocked?'open':'locked'}" ${unlocked?`onclick="openLesson(${i})"`:''}><div class="lesson-number">${String(i+1).padStart(2,'0')}</div><div class="lesson-main"><h3>${escapeHTML(lesson.title||`الدرس ${i+1}`)}</h3><p>${escapeHTML(lesson.description||'درس تعليمي ضمن هذه المرحلة')}</p></div><div class="lesson-status">${status}</div></div>`}).join('');document.getElementById('stageContent').innerHTML=`<div class="stage-page-head"><button class="back-btn" onclick="closeStage()">← العودة للمراحل</button><div class="stage-page-title">المرحلة ${stageNum}</div><div class="stage-page-desc">${escapeHTML(currentStage?.title||'')} · ${completedCount} من ${lessons.length} مكتمل</div></div><div class="lesson-list">${html}</div>`;document.getElementById('stageModal').classList.add('open')}
+function closeStage(){document.getElementById('stageModal').classList.remove('open')}
+function openLesson(index){const lessons=getStageLessons(currentStage.num),lesson=lessons[index];if(!lesson)return;if(index>0&&!isCompleted(lessons[index-1])){alert('🔒 أكمل الدرس السابق أولاً.');return}if(!lesson.video_url){alert('الفيديو سيتوفر قريبًا، تابعنا!');return}currentLesson={lesson,index,stageNum:currentStage.num};document.getElementById('modalTitle').textContent=lesson.title||`الدرس ${index+1}`;document.getElementById('videoFrame').src=lesson.video_url;document.getElementById('videoWatermark').textContent=`AIVideoSyria · ${window.__academyName||'عضو'}`;document.getElementById('modalDesc').textContent=lesson.description||'';document.getElementById('completeBtn').textContent=isCompleted(lesson)?'✅ تم إنهاء الدرس — تابع الدرس التالي':'✅ أنهيت الدرس — افتح الدرس التالي';document.getElementById('videoModal').classList.add('open')}
+function completeCurrentLesson(){if(!currentLesson)return;const stageNum=currentLesson.stageNum;progress[lessonId(currentLesson.lesson)]={completedAt:new Date().toISOString()};saveProgress();closeModal();openStage(stageNum);renderStages()}
+function closeModal(){document.getElementById('videoModal').classList.remove('open');document.getElementById('videoFrame').src='';currentLesson=null}
+async function loadCommunity(){chatLoaded=true;const box=document.getElementById('messages');try{const {data,error}=await withTimeout(sb.from('community_messages').select('id,user_id,display_name,message,created_at').order('created_at',{ascending:true}).limit(60),12000);if(error)throw error;renderMessages(data||[]);chatChannel=sb.channel('community-room').on('postgres_changes',{event:'INSERT',schema:'public',table:'community_messages'},payload=>appendMessage(payload.new)).subscribe()}catch(error){box.innerHTML=`<div class="chat-setup">الدردشة جاهزة داخل الملف، وباقي تفعيل جدول المجتمع مرة واحدة في Supabase.<br><a href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener">الدعم عبر واتساب حالياً</a></div>`;document.getElementById('chatForm').style.display='none'}}
+function messageHTML(m){const mine=m.user_id===currentUser.id,time=new Date(m.created_at).toLocaleTimeString('ar-SY',{hour:'2-digit',minute:'2-digit'});return `<div class="message-row ${mine?'mine':''}" data-message-id="${escapeHTML(m.id)}"><div class="message-meta">${escapeHTML(m.display_name||'عضو')} · ${escapeHTML(time)}</div><div class="message-bubble">${escapeHTML(m.message)}</div></div>`}
+function renderMessages(messages){const box=document.getElementById('messages');box.innerHTML=messages.length?messages.map(messageHTML).join(''):'<div class="chat-empty">كن أول من يشارك سؤالاً أو تطبيقاً 👋</div>';box.scrollTop=box.scrollHeight}
+function appendMessage(message){const box=document.getElementById('messages');if(box.querySelector(`[data-message-id="${CSS.escape(String(message.id))}"]`))return;box.querySelector('.chat-empty')?.remove();box.insertAdjacentHTML('beforeend',messageHTML(message));box.scrollTop=box.scrollHeight}
+async function sendMessage(event){event.preventDefault();const input=document.getElementById('chatInput'),btn=document.getElementById('sendBtn'),message=input.value.trim();if(!message||!currentUser)return;btn.disabled=true;try{const {data,error}=await withTimeout(sb.from('community_messages').insert({user_id:currentUser.id,display_name:window.__academyName||'عضو',message}).select().single(),10000);if(error)throw error;input.value='';if(data)appendMessage(data)}catch(error){alert('تعذر إرسال الرسالة. تحقق من الاتصال وحاول مجدداً.')}finally{btn.disabled=false;input.focus()}}
+document.addEventListener('contextmenu',e=>{if(e.target.closest('#videoModal'))e.preventDefault()});document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['s','u','p'].includes(e.key.toLowerCase()))e.preventDefault()});async function doLogout(){if(chatChannel)await sb.removeChannel(chatChannel);await sb.auth.signOut();location.href='index.html'}if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));init();
 </script>
 </body>
 </html>
